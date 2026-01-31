@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - IEEE CIS CUSB</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            max-width: 500px;
+            margin: 5rem auto;
+            background: var(--card);
+            color: var(--foreground);
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            padding: 2rem 2.5rem;
+        }
+        .admin-container h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .admin-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .admin-form input[type="text"],
+        .admin-form input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--background);
+            color: var(--foreground);
+        }
+        .admin-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .admin-form button:hover {
+            background: var(--accent);
+        }
+        .admin-info {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--muted-foreground);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Admin Panel</h1>
+        <form class="admin-form">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter admin username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="admin-info">
+            <p>This is a static admin page. For real admin features, connect to a backend.</p>
+        </div>
+    </div>
+</body>
+</html>
