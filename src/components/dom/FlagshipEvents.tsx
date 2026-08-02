@@ -111,12 +111,12 @@ export default function FlagshipEvents() {
                     aria-label={event.title}
                   >
                     {/* Background image */}
-                    <div className="absolute inset-0 w-full h-full bg-[#111]">
+                    <div className="absolute inset-0 w-full h-full bg-[#111] overflow-hidden">
                       <img
                         src={coverImage}
                         alt={event.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform"
+                        className="absolute inset-0 w-full h-full block object-cover transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform"
                       />
                       {/* Overlay layers */}
                       <div className="absolute inset-0 bg-black/45 group-hover:bg-black/15 transition-colors duration-500" />

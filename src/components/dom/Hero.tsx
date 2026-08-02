@@ -208,11 +208,13 @@ function MemoryCard({ mem, onEntranceComplete, onClick }: {
 export default function Hero() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [memories, setMemories] = useState<ActiveMemory[]>(() => generateNewCardBatch());
+  const [memories, setMemories] = useState<ActiveMemory[]>([]);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Setup batch rotation: generate brand new card batch in random positions every 5.2 seconds
   useEffect(() => {
+    setMemories(generateNewCardBatch());
+
     const interval = setInterval(() => {
       setMemories(generateNewCardBatch());
     }, 5200);
