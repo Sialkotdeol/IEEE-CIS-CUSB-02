@@ -167,8 +167,8 @@ export default function PublicProfilePage() {
               </div>
 
               <div className="bg-purple-500/10 border border-purple-500/20 px-4 py-2 rounded-2xl text-center min-w-[100px]">
-                <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">LC Rating</p>
-                <p className="text-xl font-black text-indigo-400 mt-0.5">{profile.lc_rating > 0 ? profile.lc_rating : "Unrated"}</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Rating</p>
+                <p className="text-xl font-black text-indigo-400 mt-0.5">{profile.cw_rating > 0 ? profile.cw_rating : "Unrated"}</p>
               </div>
             </div>
           </div>

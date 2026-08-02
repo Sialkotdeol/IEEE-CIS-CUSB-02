@@ -8,13 +8,13 @@ export interface Profile {
   leetcode_handle: string;
   linkedin_profile?: string;
   avatar_url?: string;
-  lc_rating: number;
-  lc_max_rating: number;
-  lc_rank: string;
-  lc_max_rank: string;
+  cw_rating: number;
+  cw_max_rating: number;
+  rank: string;
+  max_rank: string;
   current_streak: number;
   max_streak: number;
-  total_solved: number;
+  quests_solved: number;
   last_sync?: string;
   is_admin: boolean;
   created_at: string;
@@ -34,6 +34,17 @@ export interface DailyProblem {
   difficulty: string; // "Easy" | "Medium" | "Hard"
   tags: string[];
   points?: number;
+  expected_solve_time?: number;
+  created_at: string;
+}
+
+export interface PracticeProblem {
+  id: string;
+  title_slug: string;
+  question_id: number;
+  name: string;
+  difficulty: string; // "Easy" | "Medium" | "Hard"
+  tags: string[];
   expected_solve_time?: number;
   created_at: string;
 }

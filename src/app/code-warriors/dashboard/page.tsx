@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useCodeWarriorsAuth } from "@/context/CodeWarriorsAuthContext";
 import { 
-  Flame, Award, Code, CheckCircle2, RefreshCw, Clock, 
-  ExternalLink, Sparkles, BookOpen, AlertCircle, ArrowUpRight, Megaphone, Loader2
+  Flame, Code, CheckCircle2, RefreshCw, Clock, 
+  ExternalLink, Sparkles, BookOpen, ArrowUpRight, Megaphone, Loader2,
+  Trophy, Shield, Zap, Target, Box, Gift, Swords, ChevronDown, Lightbulb
 } from "lucide-react";
-import Link from "next/link";
-import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { RpgCharacterCard } from "@/components/dom/RpgCharacterCard";
+import { GuildActivityTicker } from "@/components/dom/GuildActivityTicker";
 
 export default function DashboardOverview() {
   const { user, syncUserCF } = useCodeWarriorsAuth();
@@ -19,10 +19,13 @@ export default function DashboardOverview() {
   const [isSolved, setIsSolved] = useState(false);
   const [checkingSolve, setCheckingSolve] = useState(false);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [practiceProblems, setPracticeProblems] = useState<any[]>([]);
+  const [solvedPractice, setSolvedPractice] = useState<Record<string, boolean>>({});
   const [autoSyncing, setAutoSyncing] = useState(false);
-  const SYNC_COOLDOWN_MS = 1 * 60 * 1000; // 1 minute
+  const [showHint, setShowHint] = useState(false);
 
-  // Silent background sync — no toast, respects cooldown
+  const SYNC_COOLDOWN_MS = 1 * 60 * 1000;
+
   const silentSync = async () => {
     if (!user || autoSyncing) return;
     const lastSync = localStorage.getItem(`cw_last_sync_${user.id}`);
@@ -34,13 +37,12 @@ export default function DashboardOverview() {
       localStorage.setItem(`cw_last_sync_${user.id}`, Date.now().toString());
       await fetchDashboardData();
     } catch (err) {
-      // silent — don't show error toast for background sync
+      // silent
     } finally {
       setAutoSyncing(false);
     }
   };
 
-  // Time remaining countdown
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
@@ -75,33 +77,52 @@ export default function DashboardOverview() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch POTD and announcements
   const fetchDashboardData = async () => {
     if (!user) return;
     setLoadingPOTD(true);
+    const todayStr = new Date().toISOString().split("T")[0];
     try {
-      const todayStr = new Date().toISOString().split("T")[0];
       let fetchedPotd = null;
       
       const res = await fetch(`/api/code-warriors/problems?date=${todayStr}`);
       if (res.ok) {
         const data = await res.json();
-        setPotd(data.problem);
-        fetchedPotd = data.problem;
+        if (data.problem) {
+          setPotd(data.problem);
+          fetchedPotd = data.problem;
+        } else {
+          setPotd(null);
+        }
+      } else {
+        setPotd(null);
       }
 
       const annRes = await fetch("/api/code-warriors/announcements");
       if (annRes.ok) {
         const annData = await annRes.json();
-        setAnnouncements(annData.announcements.slice(0, 3));
+        if (annData.announcements && annData.announcements.length > 0) {
+          setAnnouncements(annData.announcements.slice(0, 3));
+        } else {
+          setAnnouncements([]);
+        }
+      } else {
+        setAnnouncements([]);
       }
 
-      // Check if user solved it by searching submissions
+      const pracRes = await fetch("/api/code-warriors/practice-problems");
+      let fetchedPractice: any[] = [];
+      if (pracRes.ok) {
+        const pracData = await pracRes.json();
+        if (pracData.problems) {
+          fetchedPractice = pracData.problems;
+          setPracticeProblems(fetchedPractice);
+        }
+      }
+
       const subRes = await fetch(`/api/code-warriors/stats?userId=${user.id}`);
       if (subRes.ok) {
         const statsData = await subRes.json();
-        const heatmapToday = statsData.heatmap[todayStr];
-        // If there's a solved record for today, and it matches fetchedPotd
+        const heatmapToday = statsData.heatmap?.[todayStr];
         if (heatmapToday && heatmapToday.count > 0 && fetchedPotd) {
           const solvedPOTD = heatmapToday.details.some(
             (d: any) => d.titleSlug === fetchedPotd.title_slug
@@ -110,19 +131,35 @@ export default function DashboardOverview() {
         } else {
           setIsSolved(false);
         }
+
+        // Check which practice problems are solved
+        const solvedMap: Record<string, boolean> = {};
+        const allSolvedSlugs = new Set<string>();
+        if (statsData.heatmap) {
+          Object.values(statsData.heatmap).forEach((dayData: any) => {
+            dayData.details?.forEach((d: any) => allSolvedSlugs.add(d.titleSlug));
+          });
+        }
+        
+        fetchedPractice.forEach(p => {
+          if (allSolvedSlugs.has(p.title_slug)) {
+            solvedMap[p.id] = true;
+          }
+        });
+        setSolvedPractice(solvedMap);
       }
     } catch (err) {
       console.error("Error fetching dashboard POTD data:", err);
-    } finally {
-      setLoadingPOTD(false);
+      setPotd(null);
+      setAnnouncements([]);
     }
+    setLoadingPOTD(false);
   };
 
   useEffect(() => {
     fetchDashboardData();
   }, [user]);
 
-  // Auto-sync on load (respects 5-min cooldown)
   useEffect(() => {
     if (user) silentSync();
   }, [user]);
@@ -138,33 +175,6 @@ export default function DashboardOverview() {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [user]);
 
-  // Re-check solve state on user profile update/sync
-  useEffect(() => {
-    if (user && potd) {
-      const checkSolveStatus = async () => {
-        const todayStr = new Date().toISOString().split("T")[0];
-        try {
-          const subRes = await fetch(`/api/code-warriors/stats?userId=${user.id}`);
-          if (subRes.ok) {
-            const statsData = await subRes.json();
-            const heatmapToday = statsData.heatmap[todayStr];
-            if (heatmapToday && heatmapToday.count > 0) {
-              const solvedPOTD = heatmapToday.details.some(
-                (d: any) => d.titleSlug === potd.title_slug
-              );
-              setIsSolved(solvedPOTD);
-            } else {
-              setIsSolved(false);
-            }
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      checkSolveStatus();
-    }
-  }, [user, potd]);
-
   const handleSyncClick = async () => {
     setCheckingSolve(true);
     await syncUserCF();
@@ -172,211 +182,445 @@ export default function DashboardOverview() {
     setCheckingSolve(false);
   };
 
-  const getDifficultyColor = (diff: number) => {
-    if (diff < 1000) return "text-green-400 bg-green-400/10 border-green-500/20";
-    if (diff < 1400) return "text-indigo-400 bg-indigo-400/10 border-indigo-500/20";
-    if (diff < 1800) return "text-orange-400 bg-orange-400/10 border-orange-500/20";
-    return "text-red-400 bg-red-400/10 border-red-500/20";
+  const getDifficultyBadge = (diff: string | number) => {
+    const dStr = String(diff).toLowerCase();
+    if (dStr.includes("easy") || Number(diff) < 1200) {
+      return "bg-emerald-50 text-emerald-700 border-emerald-300";
+    }
+    if (dStr.includes("medium") || Number(diff) < 1700) {
+      return "bg-amber-50 text-amber-700 border-amber-300";
+    }
+    return "bg-rose-50 text-rose-700 border-rose-300";
   };
 
-  return (
-    <div className="space-y-8 pb-12">
-      {/* Upper Alerts/Announcements */}
-      {announcements.length > 0 && (
-        <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-4 flex items-start gap-3">
-          <Megaphone className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-indigo-400 tracking-wider uppercase mb-1">Latest Announcement</p>
-            <p className="text-sm font-semibold">{announcements[0].title}</p>
-            <p className="text-sm text-white/70 mt-1">{announcements[0].content}</p>
-          </div>
-        </div>
-      )}
+  const getNextRankInfo = (rating: number) => {
+    if (rating < 50) return { target: 50, name: "Apprentice" };
+    if (rating < 150) return { target: 150, name: "Warrior" };
+    if (rating < 300) return { target: 300, name: "Elite Warrior" };
+    if (rating < 600) return { target: 600, name: "Knight" };
+    if (rating < 1000) return { target: 1000, name: "Champion" };
+    if (rating < 2000) return { target: 2000, name: "Legend" };
+    return { target: Math.max(rating, 2000), name: "Max Rank" };
+  };
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* POTD Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-white/[0.02] border-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8 relative overflow-hidden">
-            {/* Solve state background glow */}
-            <div className={`absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[120px] transition-all pointer-events-none ${
-              isSolved ? "bg-green-500/10" : "bg-indigo-500/5"
+  if (!user) return null;
+
+  const currentRating = Number(user.cw_rating) || 0;
+  const nextRank = getNextRankInfo(currentRating);
+  const progressPercent = currentRating >= 6000 ? 100 : Math.min(100, (currentRating / nextRank.target) * 100);
+
+  return (
+    <div className="space-y-8 pb-16 text-slate-900">
+
+      {/* ── 1. RPG Character Avatar & Level Banner ── */}
+      <RpgCharacterCard user={user} />
+
+
+
+      {/* ── 5. RPG HUD Stat Cards Grid ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+        {[
+          {
+            label: "🔥 CURRENT STREAK",
+            value: `${user.current_streak ?? 0} DAYS`,
+            sub: `Best: ${user.max_streak ?? 0} Days`,
+            icon: <Flame className="w-5 h-5 text-orange-500 fill-orange-500 pixel-flame" />,
+            color: "text-orange-600",
+            bg: "from-orange-500/5 to-amber-500/5",
+          },
+          {
+            label: "⚔️ QUESTS SOLVED",
+            value: String(user.quests_solved ?? 0),
+            sub: "POTD Challenges",
+            icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />,
+            color: "text-emerald-600",
+            bg: "from-emerald-500/5 to-teal-500/5",
+          },
+          {
+            label: "⚡ SKILL RATING",
+            value: user.cw_rating ? `${user.cw_rating} PTS` : "0 PTS",
+            sub: user.rank || "Unrated",
+            icon: <Zap className="w-5 h-5 text-primary fill-primary/20" />,
+            color: "text-primary",
+            bg: "from-primary/5 to-cyan-500/5",
+            progress: progressPercent,
+            progressText: `${currentRating} / ${nextRank.target}`,
+            progressTarget: nextRank.name,
+          },
+          {
+            label: "🏆 PEAK RATING",
+            value: user.cw_max_rating ? `${user.cw_max_rating} PTS` : "0 PTS",
+            sub: user.max_rank || "Unrated",
+            icon: <Trophy className="w-5 h-5 text-amber-500" />,
+            color: "text-amber-600",
+            bg: "from-amber-500/5 to-yellow-500/5",
+          },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.08, duration: 0.45 }}
+            className={`hud-card p-5 relative overflow-hidden bg-gradient-to-br ${stat.bg}`}
+          >
+            <div className="flex justify-between items-center mb-3">
+              <span className="quest-badge text-[9px]">{stat.label}</span>
+              {stat.icon}
+            </div>
+            <p className={`text-2xl md:text-3xl font-black leading-none tracking-tight ${stat.color}`}>
+              {stat.value}
+            </p>
+            <p className="text-[11px] text-slate-500 mt-2 font-mono font-bold">{stat.sub}</p>
+            
+            {stat.progress !== undefined && (
+              <div className="mt-4 w-full">
+                <div className="flex justify-between text-[9px] text-amber-700/80 font-black mb-1.5 tracking-wider uppercase">
+                  <span>{stat.progressText}</span>
+                  <span>{stat.progressTarget}</span>
+                </div>
+                <div className="h-2 w-full bg-amber-500/10 rounded-full overflow-hidden shadow-inner">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-600 relative" 
+                    style={{ width: `${stat.progress}%` }} 
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ── 6. Main Grid: Active Quest + Sidebar Inventory & Stats ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+
+        {/* Left 2 Cols: Quest of the Day & Codex Rules */}
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          
+          {/* Active Quest Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.55 }}
+            className="hud-card p-7 md:p-9 relative overflow-hidden bg-gradient-to-b from-white via-cyan-50/20 to-white"
+          >
+            <div className={`absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[110px] pointer-events-none transition-all ${
+              isSolved ? "bg-emerald-400/15" : "bg-primary/10"
             }`} />
 
-            <div className="flex justify-between items-start mb-6 relative z-10">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Problem of the day</span>
-                <h2 className="text-2xl md:text-3xl font-black mt-1">
-                  {loadingPOTD ? "Loading Problem..." : potd ? potd.name : "Rest Day! ☕"}
-                </h2>
+            <div className="flex flex-wrap justify-between items-center gap-3 mb-6 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="quest-badge text-xs flex items-center gap-1.5 py-1 px-3">
+                  <Swords size={14} className="text-primary" /> ACTIVE QUEST OF THE DAY
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200/80 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold shadow-sm">
+                <span className="flex items-center gap-1 text-amber-700">
+                  <Gift size={14} className="text-amber-600" /> +150 EXP
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="flex items-center gap-1 text-amber-700">
+                  <Box size={14} className="text-amber-600" /> +25 GOLD
+                </span>
               </div>
             </div>
 
             {loadingPOTD ? (
-              <div className="py-12 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+              <div className="py-14 flex flex-col items-center justify-center gap-3">
+                <div className="flex gap-2">
+                  {[0,1,2].map(i => (
+                    <div key={i} className="w-3 h-3 rounded-sm bg-primary"
+                      style={{ animation: `pixel-pulse 0.8s ease-in-out infinite`, animationDelay: `${i*0.18}s` }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs font-mono text-slate-400 font-bold uppercase tracking-wider">Loading Daily Quest Specs...</p>
               </div>
             ) : potd ? (
               <div className="space-y-6 relative z-10">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                    {potd.name}
+                  </h2>
+                  <p className="text-xs text-slate-500 font-mono mt-1 font-bold">
+                    QUEST REF: #{potd.question_id || 1} • TARGET SOLVE TIME: {potd.expected_solve_time || 15} MINS
+                  </p>
+                </div>
+
                 <div className="flex flex-wrap gap-2">
-                  <span className={`px-3 py-1 rounded-full border text-xs font-bold ${getDifficultyColor(potd.difficulty)}`}>
-                    Difficulty: {potd.difficulty}
+                  <span className={`px-3 py-1 rounded-xl border text-xs font-black font-mono shadow-sm ${getDifficultyBadge(potd.difficulty)}`}>
+                    DIFFICULTY: {potd.difficulty}
                   </span>
                   {potd.tags?.map((tag: string) => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-xs text-white/60">
-                      {tag}
+                    <span key={tag} className="px-3 py-1 rounded-xl bg-slate-100/80 border border-slate-200 text-xs font-mono text-slate-600 font-bold">
+                      🏷️ {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-white/[0.01] border border-white/5 rounded-2xl p-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <Clock className="w-5 h-5 text-indigo-400" />
+                {/* Optional Hint Codex Accordion */}
+                <div className="border border-amber-200 bg-amber-50/60 rounded-2xl p-4">
+                  <button
+                    onClick={() => setShowHint(!showHint)}
+                    className="w-full flex items-center justify-between font-mono text-xs font-black text-amber-900 uppercase"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Lightbulb size={16} className="text-amber-600" /> View Quest Hint & Optimal Approach
+                    </span>
+                    <ChevronDown size={16} className={`transform transition-transform ${showHint ? "rotate-180" : ""}`} />
+                  </button>
+                  {showHint && (
+                    <div className="mt-3 pt-3 border-t border-amber-200/60 text-xs text-amber-900 leading-relaxed font-mono">
+                      {potd.hint || "Analyze constraints to pick between Hash Map O(N) or Sorting O(N log N). Avoid nested loops."}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50 border-2 border-slate-200/90 rounded-2xl p-5 shadow-inner">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Clock className="w-5 h-5 animate-pulse" />
+                    </div>
                     <div>
-                      <p className="text-xs text-white/50 leading-none">TIME REMAINING</p>
-                      <p className="font-mono font-bold text-lg mt-1">{timeLeft}</p>
+                      <p className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">QUEST TIME REMAINING</p>
+                      <p className="font-mono font-black text-2xl text-slate-900 mt-0.5">{timeLeft}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    {isSolved ? (
-                      <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-2.5 rounded-xl font-bold text-sm">
-                        <CheckCircle2 className="w-5 h-5 fill-green-500/20" /> Completed
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 px-4 py-2.5 rounded-xl font-bold text-sm">
-                        <Clock className="w-5 h-5" /> Pending Solve
-                      </div>
-                    )}
-                  </div>
+                  {isSolved ? (
+                    <div className="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-300 text-emerald-700 px-5 py-3 rounded-xl font-extrabold text-sm shadow-sm">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" /> QUEST CLEARED ✓
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 bg-amber-50 border-2 border-amber-300 text-amber-700 px-5 py-3 rounded-xl font-extrabold text-sm shadow-sm">
+                      <Target className="w-5 h-5 text-amber-600 animate-spin" style={{ animationDuration: '6s' }} /> QUEST IN PROGRESS
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <a
-                    href={`https://leetcode.com/problems/${potd.title_slug}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 text-center w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold tracking-wide transition-all flex items-center justify-center gap-2"
-                  >
-                    Open Problem on LeetCode <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
+                <a
+                  href={`https://leetcode.com/problems/${potd.title_slug}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary via-cyan-600 to-primary hover:opacity-95 text-white font-black tracking-widest uppercase text-sm transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <Swords size={18} /> ATTACK PROBLEM ON LEETCODE <ExternalLink size={16} />
+                </a>
               </div>
             ) : (
-              <div className="py-12 text-center text-white/50">
-                <p>No problem assigned for today yet. Check back soon!</p>
+              <div className="py-12 text-center text-slate-400">
+                <p className="text-4xl mb-3">🏕️</p>
+                <p className="font-bold">No quest assigned today. Rest up warrior!</p>
               </div>
             )}
-          </Card>
+          </motion.div>
 
-          {/* Guidelines / Tips */}
+          {/* ── Live Guild Activity Ticker ── */}
+          <GuildActivityTicker />
+
+          {/* ── Recommended Practice Quests ── */}
+          {practiceProblems.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.55 }}
+              className="hud-card p-6 md:p-8 relative overflow-hidden bg-white"
+            >
+              <div className="flex items-center gap-2.5 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-300 flex items-center justify-center text-purple-600">
+                  <Box size={20} />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900 tracking-tight">RECOMMENDED PRACTICE QUESTS</h3>
+                  <p className="text-xs text-slate-500 font-mono font-bold mt-0.5">Solve these quests anytime to improve your skills.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {practiceProblems.map((prob) => {
+                  const isProbSolved = solvedPractice[prob.id];
+                  return (
+                    <div key={prob.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 transition-all hover:border-slate-300 hover:shadow-sm">
+                      <div>
+                        <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                          {prob.name}
+                          {isProbSolved && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                        </h4>
+                        <div className="flex gap-2 mt-2">
+                          <span className={`px-2.5 py-0.5 rounded-lg border text-[10px] font-black font-mono shadow-sm ${getDifficultyBadge(prob.difficulty)}`}>
+                            {prob.difficulty}
+                          </span>
+                          {prob.tags?.slice(0, 2).map((tag: string) => (
+                            <span key={tag} className="px-2.5 py-0.5 rounded-lg bg-slate-200/50 text-[10px] font-mono text-slate-600 font-bold">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0">
+                        {isProbSolved ? (
+                          <span className="text-xs font-black text-emerald-600 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                            SOLVED ✓
+                          </span>
+                        ) : (
+                          <span className="text-xs font-bold text-slate-400 font-mono">
+                            ~{prob.expected_solve_time || 20}m
+                          </span>
+                        )}
+                        <a
+                          href={`https://leetcode.com/problems/${prob.title_slug}/`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 whitespace-nowrap shadow-sm"
+                        >
+                          Solve <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Codex Rules & Pro-Tips */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-white/[0.02] border-white/5 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                  <BookOpen className="w-5 h-5" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="hud-card p-6"
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <BookOpen size={18} />
                 </div>
-                <h3 className="font-bold text-lg">Daily Goal Rules</h3>
+                <h3 className="font-extrabold text-sm text-slate-900 tracking-tight">DAILY QUEST CODEX</h3>
               </div>
-              <ul className="space-y-2 text-sm text-white/70 font-light">
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Solve today's assigned problem on LeetCode before midnight.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Click the "Sync Progress" button to load your submissions.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Streak increases with consecutive daily completes!
-                </li>
+              <ul className="space-y-2.5">
+                {[
+                  "Solve today's quest on LeetCode before midnight.",
+                  "Hit 'Sync Progress' to record your submission in the Guild.",
+                ].map((tip, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+                    <span className="text-primary font-black mt-0.5">⚔️</span>
+                    {tip}
+                  </li>
+                ))}
               </ul>
-            </Card>
+            </motion.div>
 
-            <Card className="bg-white/[0.02] border-white/5 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                  <Sparkles className="w-5 h-5" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.52 }}
+              className="hud-card p-6"
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-300 flex items-center justify-center text-amber-600">
+                  <Sparkles size={18} />
                 </div>
-                <h3 className="font-bold text-lg">Pro-Tips for Streak</h3>
+                <h3 className="font-extrabold text-sm text-slate-900 tracking-tight">WARRIOR PRO-TIPS</h3>
               </div>
-              <ul className="space-y-2 text-sm text-white/70 font-light">
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Maintain a clean submission style. Clean variable names speed up debug.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Read tags before coding if you are stuck.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-bold mt-0.5">•</span> Join the community chat for collaborative debug help.
-                </li>
+              <ul className="space-y-2.5">
+                {[
+                  "Review topic tags before coding to pick the optimal data structure.",
+                  "Clean, modular code speeds up debug and reduces runtime overhead.",
+                ].map((tip, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed font-medium">
+                    <span className="text-amber-500 font-black mt-0.5">✦</span>
+                    {tip}
+                  </li>
+                ))}
               </ul>
-            </Card>
+            </motion.div>
           </div>
+
         </div>
 
-        {/* User Card Sidebar */}
+        {/* Right 1 Col: RPG Inventory & Profile Deck */}
         <div className="space-y-6">
-          {/* Streak Card */}
-          <Card className="bg-white/[0.02] border-white/5 backdrop-blur-xl rounded-3xl p-6 text-center overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-red-500/5 to-transparent pointer-events-none" />
-            <Flame className="w-16 h-16 text-red-500 fill-red-500/10 mx-auto mb-4 animate-pulse drop-shadow-[0_0_20px_rgba(239,68,68,0.4)]" />
-            
-            <p className="text-xs font-bold text-white/50 uppercase tracking-widest leading-none mb-1">Current Streak</p>
-            <h3 className="text-4xl font-black mb-1">{user?.current_streak ?? 0} Days 🔥</h3>
-            <p className="text-xs text-white/40">Best Streak: {user?.max_streak ?? 0} Days</p>
+          
+          {/* ── Bulletin Board Announcement ── */}
+          {announcements.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 border-2 border-amber-200/90 rounded-2xl p-4 flex items-start gap-3 shadow-md"
+            >
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-300 flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
+                <Megaphone className="w-5 h-5 animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="quest-badge text-[10px]">📌 GUILD BULLETIN BOARD</span>
+                  <span className="text-[10px] text-amber-700 font-mono">ANNOUNCEMENT</span>
+                </div>
+                <p className="text-sm font-black text-slate-900">{announcements[0].title}</p>
+                <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{announcements[0].content}</p>
+              </div>
+            </motion.div>
+          )}
 
-            <div className="border-t border-white/5 mt-6 pt-4 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Solved POTDs</p>
-                <p className="text-xl font-bold text-indigo-400 mt-1">{user?.total_solved ?? 0}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Last Sync</p>
-                <p className="text-xs font-mono text-white/60 mt-1.5 truncate">
-                  {user?.last_sync ? new Date(user.last_sync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Never"}
-                </p>
-              </div>
+          {/* Player Stats Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="hud-card p-6 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                <Code className="w-4 h-4 text-primary" /> LEETCODE PROFILE
+              </h3>
+              <span className="quest-badge text-[9px]">VERIFIED</span>
             </div>
-          </Card>
 
-          {/* Platform Details */}
-          <Card className="bg-white/[0.02] border-white/5 rounded-3xl p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <Code className="w-5 h-5 text-indigo-400" /> Platform Stats
-            </h3>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                <span className="text-white/50">Username</span>
-                <span className="font-mono font-bold text-indigo-400">{user?.leetcode_handle}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                <span className="text-white/50">Rating</span>
-                <span className="font-bold">{user?.lc_rating ?? "Unrated"}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                <span className="text-white/50">Rank</span>
-                <span className="capitalize">{user?.lc_rank || "Unrated"}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                <span className="text-white/50">Max Rating</span>
-                <span className="font-bold text-yellow-500/80">{user?.lc_max_rating ?? "Unrated"}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                <span className="text-white/50">Max Rank</span>
-                <span className="capitalize text-yellow-500/80">{user?.lc_max_rank || "Unrated"}</span>
-              </div>
+            <div className="space-y-3">
+              {[
+                { label: "HANDLE", value: user.leetcode_handle, mono: true, color: "text-primary font-black" },
+                { label: "RATING", value: user.cw_rating ?? "Unrated", mono: false, color: "text-slate-900 font-bold" },
+                { label: "RANK", value: user.rank || "Unranked", mono: false, color: "text-slate-600 font-semibold" },
+                { label: "MAX RATING", value: user.cw_max_rating ?? "—", mono: false, color: "text-amber-600 font-bold" },
+                { label: "MAX RANK", value: user.max_rank || "—", mono: false, color: "text-amber-600 font-semibold" },
+              ].map((row, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-slate-100 text-xs last:border-0">
+                  <span className="text-slate-400 font-mono font-bold text-[10px] uppercase">{row.label}</span>
+                  <span className={`${row.color} ${row.mono ? "font-mono" : ""}`}>{row.value}</span>
+                </div>
+              ))}
             </div>
 
             <a
-              href={`https://leetcode.com/u/${user?.leetcode_handle}/`}
+              href={`https://leetcode.com/u/${user.leetcode_handle}/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 text-center text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2"
+              className="mt-5 w-full py-2.5 rounded-xl border border-slate-200 hover:bg-primary/5 hover:border-primary/30 text-center text-xs font-extrabold tracking-wider uppercase transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-primary shadow-sm"
             >
-              View Profile <ArrowUpRight className="w-3.5 h-3.5" />
+              View Profile on LeetCode <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
-          </Card>
+          </motion.div>
+
+          {/* Sync Progress Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={handleSyncClick}
+            disabled={checkingSolve}
+            className="w-full py-4 rounded-2xl border-2 border-primary text-primary font-black text-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {checkingSolve ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> SYNCING GUILD STATS...</>
+            ) : (
+              <><RefreshCw className="w-4 h-4" /> SYNC LEETCODE PROGRESS</>
+            )}
+          </motion.button>
+
         </div>
 
       </div>

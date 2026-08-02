@@ -87,10 +87,10 @@ export async function POST(req: NextRequest) {
       }
 
       // Validate handle exists on LeetCode and pull stats
-      let lc_rating = 0;
-      let lc_max_rating = 0;
-      let lc_rank = "Unrated";
-      let lc_max_rank = "Unrated";
+      let cw_rating = 0;
+      let cw_max_rating = 0;
+      let rank = "Unrated";
+      let max_rank = "Unrated";
       let fetchedTotalSolved = 0;
 
       try {
@@ -128,13 +128,13 @@ export async function POST(req: NextRequest) {
         year,
         leetcode_handle: leetcode,
         linkedin_profile: linkedin || "",
-        lc_rating,
-        lc_max_rating,
-        lc_rank,
-        lc_max_rank,
+        cw_rating,
+        cw_max_rating,
+        rank,
+        max_rank,
         current_streak: 0,
         max_streak: 0,
-        total_solved: fetchedTotalSolved,
+        quests_solved: fetchedTotalSolved,
         is_admin: ["admin@ieee.org", "deol@ieee.org", "ieeeciscusb.webmaster@gmail.com"].includes(email.toLowerCase()),
         created_at: new Date().toISOString(),
         college: college || "CUSB",
@@ -379,14 +379,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Helper: convert platform rating to Warrior rank label
-function getPlatformRankFromRating(rating: number): string {
-  if (rating >= 6000) return "Legend";
-  if (rating >= 4000) return "Champion";
-  if (rating >= 2000) return "Knight";
-  if (rating >= 1000) return "Elite Warrior";
-  if (rating >= 500) return "Warrior";
-  if (rating >= 200) return "Apprentice";
-  if (rating > 0) return "Novice";
+// Helper: convert platform rating & stats to Warrior rank label
+function getPlatformRank(rating: number, solved: number, streak: number): string {
+  if (rating >= 2000 && solved >= 200 && streak >= 100) return "Legend";
+  if (rating >= 1000 && solved >= 100 && streak >= 60) return "Champion";
+  if (rating >= 600 && solved >= 60 && streak >= 30) return "Knight";
+  if (rating >= 300 && solved >= 30 && streak >= 14) return "Elite Warrior";
+  if (rating >= 150 && solved >= 15 && streak >= 7) return "Warrior";
+  if (rating >= 50 && solved >= 5 && streak >= 3) return "Apprentice";
+  if (rating > 0 || solved > 0) return "Novice";
   return "Unrated";
 }

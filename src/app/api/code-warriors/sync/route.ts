@@ -4,15 +4,15 @@ import { codeWarriorsDb, type Profile, type Submission, type DailyProblem } from
 // Helper to delay between API requests if needed
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Helper: convert platform rating to Warrior rank label
-function getPlatformRankFromRating(rating: number): string {
-  if (rating >= 6000) return "Legend";
-  if (rating >= 4000) return "Champion";
-  if (rating >= 2000) return "Knight";
-  if (rating >= 1000) return "Elite Warrior";
-  if (rating >= 500) return "Warrior";
-  if (rating >= 200) return "Apprentice";
-  if (rating > 0) return "Novice";
+// Helper: convert platform rating & stats to Warrior rank label
+function getPlatformRank(rating: number, solved: number, streak: number): string {
+  if (rating >= 2000 && solved >= 200 && streak >= 100) return "Legend";
+  if (rating >= 1000 && solved >= 100 && streak >= 60) return "Champion";
+  if (rating >= 600 && solved >= 60 && streak >= 30) return "Knight";
+  if (rating >= 300 && solved >= 30 && streak >= 14) return "Elite Warrior";
+  if (rating >= 150 && solved >= 15 && streak >= 7) return "Warrior";
+  if (rating >= 50 && solved >= 5 && streak >= 3) return "Apprentice";
+  if (rating > 0 || solved > 0) return "Novice";
   return "Unrated";
 }
 
@@ -32,20 +32,23 @@ export async function POST(req: NextRequest) {
     } else {
       // Sync all users (Cron trigger)
       const profiles = await codeWarriorsDb.getProfiles();
-      const updatedProfiles = [];
-
-      for (const profile of profiles) {
-        try {
-          const updated = await syncSingleUser(profile);
-          updatedProfiles.push(updated);
-          // Small delay to be respectful to LeetCode's servers
-          await delay(500);
-        } catch (err) {
-          console.error(`Failed to sync user ${profile.leetcode_handle}:`, err);
+      
+      const syncProcess = async () => {
+        for (const profile of profiles) {
+          try {
+            await syncSingleUser(profile);
+            // Small delay to be respectful to LeetCode's servers
+            await delay(500);
+          } catch (err) {
+            console.error(`Failed to sync user ${profile.leetcode_handle}:`, err);
+          }
         }
-      }
+      };
 
-      return NextResponse.json({ message: `Synced ${updatedProfiles.length} users successfully.` });
+      // Start the sync process in the background without awaiting
+      syncProcess().catch(console.error);
+
+      return NextResponse.json({ message: `Global sync started for ${profiles.length} users in the background.` });
     }
   } catch (err: any) {
     console.error("Sync API error:", err);
@@ -57,11 +60,11 @@ async function syncSingleUser(profile: Profile): Promise<Profile> {
   const handle = profile.leetcode_handle;
   if (!handle) return profile;
 
-  // 1. Fetch user info to get true total_solved count
-  let lc_rating = profile.lc_rating;
-  let lc_max_rating = profile.lc_max_rating;
-  let lc_rank = profile.lc_rank;
-  let lc_max_rank = profile.lc_max_rank;
+  // 1. Fetch user info to get true quests_solved count
+  let cw_rating = profile.cw_rating;
+  let cw_max_rating = profile.cw_max_rating;
+  let rank = profile.rank;
+  let max_rank = profile.max_rank;
 
   // 2. Fetch recent accepted submissions
   let dbSubmissions: Submission[] = [];
@@ -167,67 +170,130 @@ async function syncSingleUser(profile: Profile): Promise<Profile> {
   // 4. Update Profile Streak & Stats
   let current_streak = profile.current_streak;
   let max_streak = profile.max_streak;
-  let total_solved = profile.total_solved;
+  let quests_solved = profile.quests_solved;
 
   // Let's get total solved count (distinct solved problems in our records)
   const allUserSubmissions = await codeWarriorsDb.getSubmissions(profile.id);
-  const solvedProblemKeys = new Set(
-    allUserSubmissions
-      .filter(s => s.verdict === "Accepted")
-      .map(s => s.title_slug)
-  );
-  total_solved = solvedProblemKeys.size;
+  const allDailyProblems = await codeWarriorsDb.getDailyProblems();
   
-  // Calculate platform rating
-  lc_rating = total_solved * 10;
-  lc_max_rating = Math.max(lc_rating, profile.lc_max_rating || 0);
-  lc_rank = getPlatformRankFromRating(lc_rating);
-  lc_max_rank = getPlatformRankFromRating(lc_max_rating);
+  const potdDatesMap = new Map();
+  for (const dp of allDailyProblems || []) {
+    potdDatesMap.set(dp.date, dp);
+  }
 
-  // Check POTD solve status change to update streak
-  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-  const potdYesterday = await codeWarriorsDb.getDailyProblem(yesterdayStr);
+  let potd_solved = 0;
+  let total_potd_points = 0;
+  const solvedPotdDates = new Set();
 
-  const yesterdaySolved = potdYesterday ? allUserSubmissions.some(
-    sub =>
-      sub.title_slug === potdYesterday.title_slug &&
-      sub.verdict === "Accepted" &&
-      sub.creation_time.split("T")[0] === yesterdayStr
-  ) : false;
-
-  // Streak logic:
-  if (potdSolved) {
-    const lastSyncDate = profile.last_sync ? profile.last_sync.split("T")[0] : "";
-    const wasAlreadyStreakUpdatedToday = lastSyncDate === todayStr && profile.current_streak > 0;
-
-    if (!wasAlreadyStreakUpdatedToday) {
-      if (profile.current_streak === 0) {
-        current_streak = 1;
-      } else {
-        if (yesterdaySolved || current_streak === 1) {
-          current_streak = profile.current_streak + 1;
-        } else {
-          current_streak = 1;
+  for (const sub of allUserSubmissions || []) {
+    if (sub.verdict === "Accepted") {
+      const subDateStr = sub.creation_time.split("T")[0];
+      const matchingPotd = potdDatesMap.get(subDateStr);
+      
+      // If the submission matches the POTD for that date
+      if (matchingPotd && matchingPotd.title_slug === sub.title_slug) {
+        if (!solvedPotdDates.has(subDateStr)) {
+          solvedPotdDates.add(subDateStr);
+          potd_solved++;
+          total_potd_points += 10;
+          
+          // Also retroactively mark submission as is_potd if not already
+          if (!sub.is_potd) {
+            sub.is_potd = true;
+            await codeWarriorsDb.saveSubmissions([sub]);
+          }
         }
       }
     }
-  } else {
-    if (!yesterdaySolved && profile.current_streak > 0) {
-      current_streak = 0;
+  }
+  // Calculate Streak Robustly
+  current_streak = 0;
+  max_streak = 0;
+  
+  const sortedSolvedDates = Array.from(solvedPotdDates).sort();
+  
+  let temp_streak = 0;
+  let last_date: Date | null = null;
+  
+  for (const dateStr of sortedSolvedDates) {
+    // Treat as UTC midnight to avoid timezone/daylight savings skew
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    if (!last_date) {
+      temp_streak = 1;
+    } else {
+      const diffTime = Math.abs(d.getTime() - last_date.getTime());
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        temp_streak++;
+      } else if (diffDays > 1) {
+        temp_streak = 1;
+      }
+    }
+    last_date = d;
+    if (temp_streak > max_streak) max_streak = temp_streak;
+  }
+  
+  // Calculate current streak
+  if (sortedSolvedDates.length > 0) {
+    const lastSolvedStr = sortedSolvedDates[sortedSolvedDates.length - 1];
+    const today = new Date(`${todayStr}T00:00:00Z`);
+    const lastSolved = new Date(`${lastSolvedStr}T00:00:00Z`);
+    const diffTime = Math.abs(today.getTime() - lastSolved.getTime());
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0 || diffDays === 1) {
+      // Trace backwards to find current streak
+      current_streak = 1;
+      let curr = new Date(`${lastSolvedStr}T00:00:00Z`);
+      for (let i = sortedSolvedDates.length - 2; i >= 0; i--) {
+        const prev = new Date(`${sortedSolvedDates[i]}T00:00:00Z`);
+        const diff = Math.round(Math.abs(curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff === 1) {
+          current_streak++;
+          curr = prev;
+        } else {
+          break;
+        }
+      }
     }
   }
+
+  // Ensure max streak is accurately reflected historically
+  max_streak = Math.max(profile.max_streak || 0, max_streak, current_streak);
+  quests_solved = potd_solved;
+  
+  // Penalty logic: Calculate missed days since user registration
+  const createdDateStr = profile.created_at ? profile.created_at.split("T")[0] : todayStr;
+  let missed_days = 0;
+  for (const dp of allDailyProblems || []) {
+    if (dp.date >= createdDateStr && dp.date < todayStr) {
+      if (!solvedPotdDates.has(dp.date)) {
+        missed_days++;
+      }
+    }
+  }
+
+  // Calculate platform rating based on POTD points and penalties
+  cw_rating = Math.max(0, total_potd_points - (missed_days * 4));
+  
+  // Properly track all-time highest peak rating
+  cw_max_rating = Math.max(cw_max_rating, cw_rating);
+  
+  rank = getPlatformRank(cw_rating, quests_solved, current_streak);
+  max_rank = getPlatformRank(cw_max_rating, quests_solved, current_streak);
 
   max_streak = Math.max(current_streak, max_streak);
 
   const updatedProfile: Profile = {
     ...profile,
-    lc_rating,
-    lc_max_rating,
-    lc_rank,
-    lc_max_rank,
+    cw_rating,
+    cw_max_rating,
+    rank,
+    max_rank,
     current_streak,
     max_streak,
-    total_solved,
+    quests_solved,
     last_sync: new Date().toISOString()
   };
 
@@ -244,9 +310,9 @@ async function syncSingleUser(profile: Profile): Promise<Profile> {
     let qualifies = false;
     if (badge.requirement_type === "streak" && current_streak >= badge.requirement_value) {
       qualifies = true;
-    } else if (badge.requirement_type === "solves" && total_solved >= badge.requirement_value) {
+    } else if (badge.requirement_type === "solves" && quests_solved >= badge.requirement_value) {
       qualifies = true;
-    } else if (badge.requirement_type === "rating" && lc_rating >= badge.requirement_value) {
+    } else if (badge.requirement_type === "rating" && cw_rating >= badge.requirement_value) {
       qualifies = true;
     }
 

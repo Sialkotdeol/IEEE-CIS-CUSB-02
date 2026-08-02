@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "backup_old_site"]
+  "exclude": ["node_modules", "backup_old_site", "IEEE_UI_DESIGN-main"]
 }

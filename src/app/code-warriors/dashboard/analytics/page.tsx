@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useCodeWarriorsAuth } from "@/context/CodeWarriorsAuthContext";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   LineChart, Line, CartesianGrid, ReferenceLine
 } from "recharts";
 import { 
-  Loader2, Flame, Trophy, Award, Sparkles, Brain, 
-  HelpCircle, ChevronRight, GraduationCap, CheckCircle
+  Loader2, Flame, Trophy, Award, Brain, 
+  ChevronRight, GraduationCap, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 export default function AnalyticsPage() {
   const { user } = useCodeWarriorsAuth();
@@ -28,10 +28,18 @@ export default function AnalyticsPage() {
         if (res.ok) {
           const data = await res.json();
           setAnalyticsData(data);
+        } else {
+          // Zeroed-out fallback analytics
+          setAnalyticsData({
+            stats: { totalSolved: user.quests_solved || 0, acceptanceRate: 0, hardestSolved: "None", weeklySolved: 0, weeklyGoal: 7 },
+            heatmap: {},
+            ratingProgress: [],
+            difficultyDistribution: [],
+            recommendations: []
+          });
         }
       } catch (err) {
         console.error("Failed to load analytics:", err);
-        toast.error("Failed to load analytics details.");
       } finally {
         setLoading(false);
       }
@@ -42,41 +50,27 @@ export default function AnalyticsPage() {
   if (loading || !analyticsData) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-      </div>
-    );
-  }
-
-  // Generate list of last 365 days for heatmap
+  // Heatmap Helpers
   const generateHeatmapDays = () => {
     const days = [];
     const today = new Date();
-    // Go back 364 days to make it a full year of 52 weeks (365 days)
     const startDate = new Date();
     startDate.setDate(today.getDate() - 364);
-
-    // Adjust start date to previous Sunday to keep the columns aligned
     const startDayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - startDayOfWeek);
-
     const currentDate = new Date(startDate);
     const endDate = new Date(today);
-    // Align end date to Saturday
     const endDayOfWeek = endDate.getDay();
     endDate.setDate(endDate.getDate() + (6 - endDayOfWeek));
 
     while (currentDate <= endDate) {
       const dateStr = currentDate.toISOString().split("T")[0];
       const dateData = analyticsData.heatmap[dateStr] || { count: 0, level: 0, details: [] };
-      
       days.push({
         date: dateStr,
         dayOfWeek: currentDate.getDay(),
@@ -91,8 +85,6 @@ export default function AnalyticsPage() {
   };
 
   const heatmapDays = generateHeatmapDays();
-  
-  // Group days by column (weeks)
   const heatmapWeeks: any[] = [];
   for (let i = 0; i < heatmapDays.length; i += 7) {
     heatmapWeeks.push(heatmapDays.slice(i, i + 7));
@@ -100,10 +92,10 @@ export default function AnalyticsPage() {
 
   const getHeatmapColor = (level: number) => {
     switch (level) {
-      case 1: return "bg-indigo-900/50 border-indigo-700/20"; // Level 1 (Easy Solved)
-      case 2: return "bg-indigo-600 border-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.2)]"; // Level 2 (Medium Solved)
-      case 3: return "bg-purple-500 border-purple-400/30 shadow-[0_0_15px_rgba(168,85,247,0.4)]"; // Level 3 (Hard / Multiple)
-      default: return "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"; // Unsolved
+      case 1: return "bg-primary/30 border-primary/20"; // Level 1 (Easy)
+      case 2: return "bg-primary border-primary/20 shadow-sm"; // Level 2 (Medium)
+      case 3: return "bg-purple-500 border-purple-400 shadow-sm"; // Level 3 (Hard)
+      default: return "bg-slate-100 border-slate-200 hover:bg-slate-200"; // Unsolved
     }
   };
 
@@ -117,57 +109,71 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-16 text-slate-900">
+      
+      {/* Overview Header */}
+      <SpotlightCard glowHue={205} spotSize={300} borderSize={2} className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-md">
+        <span className="quest-badge mb-2 inline-block">📊 PERFORMANCE METRICS</span>
+        <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          Warrior Analytics <Sparkles size={20} className="text-yellow-500 animate-pulse" />
+        </h2>
+        <p className="text-xs md:text-sm text-slate-500 font-mono mt-1 font-bold">
+          Detailed metrics of your streak progression, solve distributions, and rating velocity.
+        </p>
+      </SpotlightCard>
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white/[0.02] border-white/5 p-6 rounded-2xl">
-          <p className="text-xs text-white/50 font-bold uppercase tracking-widest leading-none mb-1">Streak</p>
-          <h3 className="text-3xl font-black text-white">{user?.current_streak ?? 0} 🔥</h3>
-          <p className="text-xs text-white/40 mt-1">Best streak: {user?.max_streak ?? 0} Days</p>
-        </Card>
+        <SpotlightCard glowHue={205} spotSize={200} borderSize={2} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+          <p className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest leading-none mb-2">CURRENT STREAK</p>
+          <h3 className="text-3xl font-black text-orange-600">{user?.current_streak ?? 0} DAYS 🔥</h3>
+          <p className="text-xs text-slate-500 font-mono mt-1">Best streak: {user?.max_streak ?? 0} Days</p>
+        </SpotlightCard>
 
-        <Card className="bg-white/[0.02] border-white/5 p-6 rounded-2xl">
-          <p className="text-xs text-white/50 font-bold uppercase tracking-widest leading-none mb-1">Total Solved</p>
-          <h3 className="text-3xl font-black text-indigo-400">{analyticsData.stats.totalSolved} ⚔️</h3>
-          <p className="text-xs text-white/40 mt-1">Acceptance Rate: {analyticsData.stats.acceptanceRate}%</p>
-        </Card>
+        <SpotlightCard glowHue={205} spotSize={200} borderSize={2} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+          <p className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest leading-none mb-2">TOTAL SOLVED</p>
+          <h3 className="text-3xl font-black text-primary">{analyticsData.stats.totalSolved} ⚔️</h3>
+          <p className="text-xs text-slate-500 font-mono mt-1">Acceptance Rate: {analyticsData.stats.acceptanceRate}%</p>
+        </SpotlightCard>
 
-        <Card className="bg-white/[0.02] border-white/5 p-6 rounded-2xl">
-          <p className="text-xs text-white/50 font-bold uppercase tracking-widest leading-none mb-1">Hardest Solved</p>
-          <h3 className="text-2xl font-bold text-yellow-500">{analyticsData.stats.hardestSolved} 🛡️</h3>
-          <p className="text-xs text-white/40 mt-1">Rating difficulty cap</p>
-        </Card>
+        <SpotlightCard glowHue={205} spotSize={200} borderSize={2} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+          <p className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest leading-none mb-2">HARDEST SOLVED</p>
+          <h3 className="text-2xl font-black text-amber-600">{analyticsData.stats.hardestSolved} 🛡️</h3>
+          <p className="text-xs text-slate-500 font-mono mt-1">Rating difficulty cap</p>
+        </SpotlightCard>
 
-        <Card className="bg-white/[0.02] border-white/5 p-6 rounded-2xl">
-          <p className="text-xs text-white/50 font-bold uppercase tracking-widest leading-none mb-1">Weekly Solves</p>
-          <h3 className="text-3xl font-black text-green-400">{analyticsData.stats.weeklySolved} / {analyticsData.stats.weeklyGoal}</h3>
-          <p className="text-xs text-white/40 mt-1">Target is 1 POTD daily</p>
-        </Card>
+        <SpotlightCard glowHue={205} spotSize={200} borderSize={2} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+          <p className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest leading-none mb-2">WEEKLY SOLVES</p>
+          <h3 className="text-3xl font-black text-emerald-600">{analyticsData.stats.weeklySolved} / {analyticsData.stats.weeklyGoal}</h3>
+          <p className="text-xs text-slate-500 font-mono mt-1">Target is 1 POTD daily</p>
+        </SpotlightCard>
       </div>
 
-      {/* GitHub style heatmap */}
-      <Card className="bg-white/[0.02] border-white/5 rounded-3xl p-6 md:p-8">
-        <CardHeader className="p-0 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Activity Heatmap */}
+      <SpotlightCard glowHue={205} spotSize={300} borderSize={2} className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-md">
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <CardTitle className="text-xl font-bold">Activity Heatmap</CardTitle>
-            <p className="text-xs text-white/50">Your daily competitive programming solve records over the past year</p>
+            <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" /> Activity Heatmap
+            </h3>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">Your daily competitive programming solve records over the past year</p>
           </div>
           {/* Heatmap Legend */}
-          <div className="flex items-center gap-2 text-xs text-white/40">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-400">
             <span>Less</span>
-            <div className="w-3.5 h-3.5 rounded bg-white/[0.02] border border-white/5" />
-            <div className="w-3.5 h-3.5 rounded bg-indigo-900/50 border border-indigo-700/20" />
-            <div className="w-3.5 h-3.5 rounded bg-indigo-600 border border-indigo-500/20" />
-            <div className="w-3.5 h-3.5 rounded bg-purple-500 border border-purple-400/30" />
+            <div className="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-200" />
+            <div className="w-3.5 h-3.5 rounded bg-primary/30 border border-primary/20" />
+            <div className="w-3.5 h-3.5 rounded bg-primary border border-primary/20" />
+            <div className="w-3.5 h-3.5 rounded bg-purple-500 border border-purple-400" />
             <span>More</span>
           </div>
-        </CardHeader>
+        </div>
 
         {/* Heatmap Container */}
-        <div className="overflow-x-auto pb-4 -mx-6 px-6">
+        <div className="overflow-x-auto pb-4 -mx-2 px-2 sm:mx-0 sm:px-0">
           <div className="min-w-[700px] flex flex-col gap-1">
             {/* Months Header Row */}
-            <div className="flex h-4 text-[10px] text-white/40 font-semibold mb-1 ml-6">
+            <div className="flex h-4 text-[10px] text-slate-400 font-semibold mb-1 ml-6">
               {heatmapWeeks.map((week, idx) => {
                 const label = getMonthLabel(idx);
                 return label ? (
@@ -182,7 +188,7 @@ export default function AnalyticsPage() {
 
             <div className="flex gap-2">
               {/* Day Labels Column */}
-              <div className="flex flex-col justify-between h-[98px] text-[9px] text-white/40 select-none py-1.5 leading-none shrink-0 font-medium">
+              <div className="flex flex-col justify-between h-[98px] text-[9px] text-slate-400 select-none py-1.5 leading-none shrink-0 font-medium">
                 <span>Mon</span>
                 <span>Wed</span>
                 <span>Fri</span>
@@ -197,7 +203,7 @@ export default function AnalyticsPage() {
                         key={day.date}
                         className={`aspect-square w-full rounded-[3px] border cursor-pointer transition-all ${getHeatmapColor(
                           day.level
-                        )} ${hoveredDay?.date === day.date ? "ring-2 ring-indigo-400 scale-110 z-10" : ""}`}
+                        )} ${hoveredDay?.date === day.date ? "ring-2 ring-primary scale-110 z-10" : ""}`}
                         onMouseEnter={() => setHoveredDay(day)}
                       />
                     ))}
@@ -213,10 +219,10 @@ export default function AnalyticsPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border-t border-white/5 mt-6 pt-4 flex flex-col sm:flex-row justify-between gap-4 text-sm relative z-10"
+            className="border-t border-slate-100 mt-6 pt-4 flex flex-col sm:flex-row justify-between gap-4 text-sm relative z-10"
           >
             <div>
-              <p className="font-bold text-white/80">
+              <p className="font-extrabold text-slate-900">
                 {new Date(hoveredDay.date).toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
@@ -224,7 +230,7 @@ export default function AnalyticsPage() {
                   day: "numeric",
                 })}
               </p>
-              <p className="text-xs text-white/50 mt-0.5">
+              <p className="text-xs font-mono font-bold text-slate-500 mt-0.5">
                 {hoveredDay.count === 0 
                   ? "No daily solves registered" 
                   : `Solved ${hoveredDay.count} problem${hoveredDay.count > 1 ? "s" : ""}`}
@@ -233,13 +239,13 @@ export default function AnalyticsPage() {
             
             {hoveredDay.count > 0 && (
               <div className="flex flex-wrap gap-3">
-                {hoveredDay.details.map((det: any) => (
-                  <div key={det.id} className="bg-white/5 border border-white/5 rounded-xl px-4 py-2 flex items-center gap-3">
+                {hoveredDay.details.map((det: any, idx: number) => (
+                  <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-3">
                     <div>
-                      <p className="font-semibold text-xs text-indigo-400">{det.contestId}{det.index}</p>
-                      <p className="font-bold text-sm leading-tight mt-0.5">{det.name}</p>
+                      <p className="font-semibold text-[10px] text-slate-500 tracking-wider uppercase">LC • {det.titleSlug || "PROBLEM"}</p>
+                      <p className="font-extrabold text-sm leading-tight text-slate-900 mt-0.5">{det.name}</p>
                     </div>
-                    <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">
+                    <span className="text-[10px] bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded font-mono font-bold">
                       {det.difficulty}
                     </span>
                   </div>
@@ -248,131 +254,110 @@ export default function AnalyticsPage() {
             )}
           </motion.div>
         )}
-      </Card>
+      </SpotlightCard>
 
       {/* Recharts Graphs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Rating Progression Graph */}
-        <Card className="bg-white/[0.02] border-white/5 rounded-3xl p-6 relative overflow-hidden">
-          <CardHeader className="p-0 mb-6">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-indigo-400" /> Rating Progress
-            </CardTitle>
-            <p className="text-xs text-white/50">Your rating trajectory over recent competitive contests</p>
-          </CardHeader>
+        <SpotlightCard glowHue={205} spotSize={280} borderSize={2} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-md">
+          <div className="mb-6">
+            <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-primary" /> Rating Progression
+            </h3>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">Your rating trajectory over recent competitive contests</p>
+          </div>
           
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analyticsData.ratingProgress}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                <YAxis domain={["auto", "auto"]} stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="date" stroke="#64748b" fontSize={10} tickLine={false} />
+                <YAxis domain={["auto", "auto"]} stroke="#64748b" fontSize={10} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f0f15", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff", fontSize: "12px" }}
-                  itemStyle={{ color: "#a5b4fc" }}
+                  contentStyle={{ backgroundColor: "#ffffff", borderColor: "#cbd5e1", borderRadius: "12px", color: "#0f172a", fontSize: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  itemStyle={{ color: "#00629b" }}
                   labelStyle={{ fontWeight: "bold" }}
                 />
-                {/* Reference line for max rating */}
-                {(user?.lc_max_rating ?? 0) > 0 && (
-                  <ReferenceLine y={user?.lc_max_rating ?? 0} stroke="#eab308" strokeDasharray="4 4" label={{ value: `Max: ${user?.lc_max_rating ?? 0}`, fill: "rgba(255,255,255,0.5)", fontSize: 9, position: "top" }} />
-                )}
                 <Line 
                   type="monotone" 
                   dataKey="rating" 
-                  stroke="#6366f1" 
+                  stroke="#00629b" 
                   strokeWidth={3}
-                  activeDot={{ r: 6, fill: "#818cf8" }}
-                  dot={{ r: 4, fill: "#4f46e5" }}
+                  activeDot={{ r: 6, fill: "#06b6d4" }}
+                  dot={{ r: 4, fill: "#00629b" }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </SpotlightCard>
 
         {/* Difficulty Distribution Chart */}
-        <Card className="bg-white/[0.02] border-white/5 rounded-3xl p-6 relative overflow-hidden">
-          <CardHeader className="p-0 mb-6">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Award className="w-5 h-5 text-indigo-400" /> Solved Difficulty Distribution
-            </CardTitle>
-            <p className="text-xs text-white/50">Number of solved problems categorized by platform difficulty levels</p>
-          </CardHeader>
+        <SpotlightCard glowHue={205} spotSize={280} borderSize={2} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-md">
+          <div className="mb-6">
+            <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Award className="w-5 h-5 text-primary" /> Solved Difficulty Breakdown
+            </h3>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">Problems solved categorized by platform difficulty</p>
+          </div>
 
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analyticsData.difficultyDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                <XAxis dataKey="difficulty" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="difficulty" stroke="#64748b" fontSize={10} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f0f15", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff", fontSize: "12px" }}
-                  itemStyle={{ color: "#a5b4fc" }}
-                  cursor={{ fill: "rgba(255,255,255,0.02)" }}
+                  contentStyle={{ backgroundColor: "#ffffff", borderColor: "#cbd5e1", borderRadius: "12px", color: "#0f172a", fontSize: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  itemStyle={{ color: "#00629b" }}
                 />
-                <Bar dataKey="count" fill="#818cf8" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                <Bar dataKey="count" fill="#00629b" radius={[6, 6, 0, 0]} maxBarSize={36} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </SpotlightCard>
 
       </div>
 
-      {/* Problem Recommendations (from real submission tag analysis) */}
-      <Card className="bg-white/[0.02] border-white/5 rounded-3xl p-6 md:p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-purple-600/5 rounded-full blur-[80px] pointer-events-none" />
-        
-        <CardHeader className="p-0 mb-6 flex flex-row items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+      {/* Recommended Practice */}
+      <SpotlightCard glowHue={205} spotSize={300} borderSize={2} className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-md">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
             <Brain className="w-5 h-5" />
           </div>
           <div>
-            <CardTitle className="text-xl font-bold">Recommended Practice</CardTitle>
-            <p className="text-xs text-white/50">Problems suggested based on your real submission tag history</p>
+            <h3 className="text-xl font-black text-slate-900">Recommended Practice Quests</h3>
+            <p className="text-xs text-slate-500 font-mono">Suggested based on your tag history and weaknesses</p>
           </div>
-        </CardHeader>
+        </div>
 
-        {analyticsData.recommendations.length === 0 ? (
-          <div className="py-12 text-center text-white/30">
-            <GraduationCap className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Solve more problems to unlock personalized recommendations.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
-            {analyticsData.recommendations.map((rec: any) => (
-              <div 
-                key={rec.id}
-                className="bg-white/[0.01] border border-white/5 rounded-2xl p-5 hover:border-purple-500/30 transition-all flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-[10px] font-bold bg-purple-500/10 border border-purple-500/20 text-purple-400 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                      {rec.tag}
-                    </span>
-                    <span className="text-[10px] font-mono text-white/40">
-                      Diff: {rec.difficulty}
-                    </span>
-                  </div>
-
-                  <h4 className="font-bold text-base group-hover:text-purple-400 transition-colors">
-                    {rec.contestId}{rec.problemIndex} - {rec.name}
-                  </h4>
-                </div>
-
-                <a
-                  href={rec.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 flex items-center justify-between text-xs font-bold text-purple-400 group-hover:text-purple-300 transition-colors"
-                >
-                  <span>SOLVE PROBLEM</span>
-                  <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </a>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {analyticsData.recommendations.map((rec: any) => (
+            <div 
+              key={rec.id}
+              className="bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:border-primary/40 transition-all flex justify-between items-center group"
+            >
+              <div>
+                <span className="text-[10px] font-mono font-bold bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  {rec.tag} • {rec.difficulty}
+                </span>
+                <h4 className="font-extrabold text-base text-slate-900 mt-2 group-hover:text-primary transition-colors">
+                  {rec.name}
+                </h4>
               </div>
-            ))}
-          </div>
-        )}
-      </Card>
+
+              <a
+                href={rec.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-primary text-white font-bold text-xs flex items-center gap-1 hover:bg-[#00527f] transition-colors shadow-sm shrink-0"
+              >
+                ATTACK <ChevronRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </SpotlightCard>
     </div>
   );
 }

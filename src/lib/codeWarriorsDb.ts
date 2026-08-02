@@ -2,6 +2,7 @@ import { supabase } from "./supabase";
 import {
   Profile,
   DailyProblem,
+  PracticeProblem,
   Submission,
   Badge,
   UserBadge,
@@ -103,6 +104,37 @@ export const codeWarriorsDb = {
     return data;
   },
 
+  // Practice Problems
+  async getPracticeProblems(): Promise<PracticeProblem[]> {
+    const { data, error } = await supabase
+      .from("code_warriors_practice_problems")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error getting practice problems:", error);
+      return [];
+    }
+    return data;
+  },
+
+  async savePracticeProblem(problem: PracticeProblem): Promise<PracticeProblem> {
+    const { data, error } = await supabase
+      .from("code_warriors_practice_problems")
+      .upsert(problem)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async deletePracticeProblem(id: string): Promise<void> {
+    const { error } = await supabase
+      .from("code_warriors_practice_problems")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+  },
+
   // Submissions
   async getSubmissions(userId: string): Promise<Submission[]> {
     const { data, error } = await supabase
@@ -112,6 +144,20 @@ export const codeWarriorsDb = {
       .order("creation_time", { ascending: false });
     if (error) {
       console.error("Error getting submissions:", error);
+      return [];
+    }
+    return data;
+  },
+
+  async getRecentGuildActivity(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from("code_warriors_submissions")
+      .select("*, profile:user_id(name, leetcode_handle)")
+      .eq("is_potd", true)
+      .order("creation_time", { ascending: false })
+      .limit(15);
+    if (error) {
+      console.error("Error getting guild activity:", error);
       return [];
     }
     return data;
