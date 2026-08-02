@@ -547,10 +547,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
   -webkit-backface-visibility: hidden;
 }
 
-img, video, canvas, svg {
-  max-width: 100%;
-  height: auto;
-}
+
 
 @media (max-width: 768px) {
   .hud-card, .memory-card {
