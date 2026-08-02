@@ -6,9 +6,8 @@ import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Users, Calendar, Award, Sparkles } from "lucide-react";
 
 const STATS = [
-  { icon: <Users size={22} className="text-primary" />, number: "500+", label: "Active Members" },
+  { icon: <Users size={22} className="text-primary" />, number: "45", label: "Active Members" },
   { icon: <Calendar size={22} className="text-cyan-600" />, number: "25+", label: "Events & Workshops" },
-  { icon: <Award size={22} className="text-indigo-600" />, number: "10+", label: "Hackathon Wins" },
   { icon: <Sparkles size={22} className="text-amber-500" />, number: "100%", label: "Peer Innovation" },
 ];
 
@@ -71,7 +70,7 @@ export default function About() {
         </div>
 
         {/* Interactive Stats Grid with Spotlight Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-5xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-6 w-full max-w-5xl">
           {STATS.map((stat, i) => (
             <motion.div
               key={i}
