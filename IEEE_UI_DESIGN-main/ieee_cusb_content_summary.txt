@@ -1,0 +1,440 @@
+================================================================================
+                    IEEE CIS CUSB - COMPLETE WEBSITE CONTENT REFERENCE
+================================================================================
+This document compiles all the copy, data, details, and structural elements found 
+across the IEEE Computational Intelligence Society Chandigarh University Student 
+Branch (IEEE CIS CUSB) codebase. It is designed to act as the source-of-truth 
+reference file for entirely redesigning/updating the website UI.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. BRAND IDENTIFIERS & MISSION
+2. FACULTY & STUDENT LEADERSHIP
+3. CORE ECOSYSTEMS & PROGRAM PARTICIPATION
+   A. C1S C0DE WARR10RS
+   B. CIS INNOVATORS HUB
+4. CHRONOLOGICAL LIST OF ALL EVENTS (17 EVENTS)
+5. FREQUENTLY ASKED QUESTIONS (FAQ)
+6. PRIVACY POLICY & DATA STORAGE STATEMENTS
+7. CONTACTS, SOCIALS, & THIRD-PARTY LINKS
+8. WEB SITE STRUCTURAL RECOMMENDATIONS FOR THE UI UPDATE
+
+================================================================================
+1. BRAND IDENTIFIERS & MISSION
+================================================================================
+* Branch Name: 
+  IEEE Computational Intelligence Society, Chandigarh University Student Branch
+  (IEEE CIS CUSB)
+
+* Short Name: 
+  IEEE CIS CUSB
+
+* Branch Counsellor / Advisor Message:
+  "Advancing the theory and practice of computational intelligence worldwide."
+  "Bridging the gap between theoretical research and real-world impact."
+
+* Taglines & Mission Phrases (from About Page):
+  - "We are a community of innovators exploring the frontiers of intelligence."
+  - "We organize workshops, competitions, and technical sessions bridging theory and real-world impact."
+  - "Our mission is to empower students to build the future of AI and Machine Learning."
+
+================================================================================
+2. FACULTY & STUDENT LEADERSHIP
+================================================================================
+--------------------------------------------------------------------------------
+FACULTY LEADERSHIP
+--------------------------------------------------------------------------------
+1. Dr. Sugandha Sharma
+   * Role: Branch Counsellor
+   * Bio: Providing guidance, mentorship, and strategic direction to support student growth and excellence.
+   * Email: sugandha.cse@cumail.in
+   * LinkedIn: https://www.linkedin.com/in/dr-sugandha-sharma-8a4090b7/
+   * Image: /sugandha.jpg
+
+2. Dr. Rakesh Kumar
+   * Role: Chapter Advisor
+   * Bio: Mentoring leadership while ensuring alignment with academic and professional standards.
+   * Email: rakesh.e8623@cumail.in
+   * LinkedIn: https://www.linkedin.com/in/dr-rakesh-kumar-01534834/
+   * Image: /rakesh.jpeg
+
+--------------------------------------------------------------------------------
+STUDENT CORE TEAM
+--------------------------------------------------------------------------------
+1. Yash Sharma
+   * Role: Chair Person
+   * Bio: Leading IEEE CIS CUSB with vision, vibes, and next-gen innovation—turning ideas into impact, no cap.
+   * Email: yashrgp@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/sharmayash2805/
+   * Image: /yash.jpeg
+
+2. Nirav Seth
+   * Role: Vice Chair Person
+   * Bio: Supporting the vision with strong execution while fostering collaboration and growth.
+   * Email: sethnirav22@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/nirav-seth-59812a303/
+   * Image: /nirav seth .jpeg
+   * Image Position Alignment: Center
+
+3. Laxmi Abhinaya Chunchu
+   * Role: Secretary (General)
+   * Bio: Ensuring smooth coordination, clear communication, and efficient execution across all responsibilities.
+   * Email: abhinayach643@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/laxmi-abhinaya-ch-7b1773302
+   * Image: /Chunchun Luxmi Abhinaya.jpeg
+   * Image Position Alignment: Top
+
+4. Bhavya
+   * Role: Joint Secretary
+   * Bio: Focused on teamwork, organization, and timely execution of responsibilities.
+   * Email: bhavyabhugra28@gmail.com
+   * LinkedIn: http://linkedin.com/in/bhavya-bhugra-a84177386
+   * Image: /bhavya.jpeg
+   * Image Position Alignment: Center
+
+5. Angadveer Singh Deol
+   * Role: Digital Lead
+   * Bio: Blending vision, discipline, and creativity to create work that actually matters.
+   * Email: angaddeol11@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/angadveer-singh-deol-9b8b172b2/
+   * Image: /angad.jpeg
+
+6. Anurag Kumar Shaw
+   * Role: Treasurer
+   * Bio: Dedicated to managing finances with precision, ensuring transparency, and fostering financial growth for impactful initiatives.
+   * Email: anuragshaw0057@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/anurag-shaw-420909382
+   * Image: /Anurah Shaw.jpeg
+   * Image Position Alignment: Top
+
+7. Shivansh Pandey
+   * Role: Head of Media
+   * Bio: Overseeing media operations while shaping a strong and consistent visual identity.
+   * Email: shivansh682.pandey@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/shivansh-pandey-468244353
+   * Image: /shivansh2.jpeg
+   * Image Position Alignment: Top
+
+8. Diwanshu Goyal
+   * Role: Membership Executive
+   * Bio: Learning, supporting, and delivering with purpose.
+   * Email: diwanshu224@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/diwanshu-goyal-73b54b328
+   * Image: /diwanshu.jpeg
+   * Image Position Alignment: 0% center
+   * Image Zoom Factor: 2.0
+
+9. Sneha Sinha
+   * Role: Event Coordinator
+   * Bio: Skilled in planning, coordinating, and executing events with precision and attention to detail.
+   * Email: s.sinha0531@gmail.com
+   * LinkedIn: https://www.linkedin.com/in/sneha-sinha-8a9b51381/
+   * Image: /Sneha Sinha.jpeg
+   * Image Position Alignment: Center
+
+10. Tanishka
+    * Role: PR Lead
+    * Bio: Fostering meaningful connections and promoting initiatives that strengthen the chapter's reach and impact.
+    * Email: tanishkachahal79@gmail.com
+    * LinkedIn: https://www.linkedin.com/in/tanishka-chahal-bba561375/
+    * Image: /tanishka.jpeg
+    * Image Position Alignment: Center
+
+11. Krish
+    * Role: Tech Lead
+    * Bio: Driving technical excellence and innovation while building solutions that empower the chapter's growth.
+    * Email: krishmunjal126@gmail.com
+    * LinkedIn: https://www.linkedin.com/in/krishmunjal/
+    * Image: /krish-converted.jpg
+    * Image Position Alignment: Center
+
+================================================================================
+3. CORE ECOSYSTEMS & PROGRAM PARTICIPATION
+================================================================================
+--------------------------------------------------------------------------------
+A. C1S C0DE WARR10RS (Warriors Portal Program)
+--------------------------------------------------------------------------------
+* Slogan: 
+  "CODE BETTER. THINK SMARTER. WIN TOGETHER."
+  "Stop brute-forcing your code from O(N²) to O(N log N). Learn how to optimize your logic and think like a grandmaster."
+
+* Overview: 
+  A peer-learning ecosystem focused on building consistency, mastering DSA, and cracking technical placements. Upgrade your logic, optimize your runtime.
+
+* Core Features:
+  1. Daily POTD (Problem of the Day): Handpicked LeetCode problems to build daily consistency.
+  2. Weekly Bug Bounties: Spot the flaw, claim the bragging rights. Master debugging.
+  3. Monthly Sprints: Virtual mock contests to sharpen your speed and problem-solving.
+  4. Master DSA: From Arrays to Dynamic Programming, break down complex concepts with peers.
+  5. Build Your Profile: Get step-by-step guidance on building a strong LeetCode profile and contest ratings.
+  6. Competitive Edge: Helps you prepare for IEEE Xtreme, ICPC, and top technical placements.
+
+* Registration Fields Required:
+  - Name, UID, Email, Mobile, Department, Year (1st, 2nd, 3rd, 4th, Postgrad), LeetCode Username or Profile URL, Password (min 6 characters), LinkedIn Profile (Optional), Referred By Team Member (Optional).
+
+* Mentor Application Fields:
+  - Name, Role (Student / Working Professional), Email, Mobile, Company/Role or Department, Year, LeetCode Username, Resume Link, Previous Mentoring Experience Description, LinkedIn Profile (Optional).
+
+--------------------------------------------------------------------------------
+B. CIS INNOVATORS HUB
+--------------------------------------------------------------------------------
+* Slogan:
+  "BUILD. INNOVATE. RESEARCH."
+  "10 Teams. 10 Projects. One Vision -- Innovation."
+
+* Overview:
+  A long-term innovation ecosystem where students build impactful projects, collaborate in teams, and represent IEEE CIS in national and international hackathons.
+
+* The Journey:
+  1. Ideathon Screening: Submit your problem statement and proposed solution. Best ideas get shortlisted.
+  2. Team Formation: Got an idea but no team? We'll help you find like-minded collaborators.
+  3. Structured Mentorship: Get technical guidance from seniors, faculty, and IEEE mentors.
+  4. Hackathon Exposure: Represent IEEE CIS in Smart India Hackathon and international competitions.
+
+* Participation Types:
+  - Option A: Team (Max 5 members). Required Fields: Team Name, Other Team Members Names & UIDs, Project Idea & Tech Stack description.
+  - Option B: Individual Match (Matched with teammates). Required Fields: Domain/Skills details of what kind of teammates you want.
+  - Option C: Individual Later (Form team later before a given deadline, else auto-matched).
+
+* Basic Fields Required (All Types):
+  - Name (Leader / Individual), UID, Email, Mobile, Department, Year, Preferred Technical Domain.
+
+================================================================================
+4. CHRONOLOGICAL LIST OF ALL EVENTS (17 EVENTS)
+================================================================================
+--------------------------------------------------------------------------------
+1. WcCST-26 (Flagship)
+   * Date: 26-27 MAR 2026
+   * Type: Conference
+   * Description: WcCST-2026 (World Conference on Computational Science and Technology) is a prestigious global conference organized at Chandigarh University, focusing on advancements in computational intelligence, AI, and emerging technologies.
+   * Tags: Global Conference, AI, IEEE Xplore
+   * Media Count: 14 images
+   * Slug: wccst-26
+
+2. Agent Craft
+   * Date: 23 MAR 2026
+   * Type: Workshop
+   * Description: AgentCraft: Build Your Own AI Agent with Microsoft Copilot Studio is a hands-on workshop focused on introducing students to next-generation AI agents.
+   * Tags: AI Agents, Microsoft Copilot, Workshop
+   * Media Count: 12 images
+   * Slug: agent-craft
+
+3. Contribute-X (Flagship)
+   * Date: 27 FEB - 6 MAR 2026
+   * Type: Open Source Bootcamp
+   * Description: Contribute-X is a structured open-source bootcamp combined with a live contribution challenge designed to help students actively participate in global open-source ecosystems.
+   * Details:
+     - Phase I (Expert-Led Open Source Masterclass): A comprehensive 3-hour masterclass covering fundamentals, GitHub workflows, live demos, and beginner roadmaps.
+     - Phase II (Live Contribution Challenge): A 2-hour hands-on challenge where participants submit real pull requests to beginner-friendly repositories.
+     - Objective: Transition students from passive learners into active, confident open source contributors.
+     - Outcome: First-time PRs, improved GitHub profiles, and increased GSoC/GSSoC participation readiness.
+   * Tags: Open Source, GitHub, Bootcamp
+   * Media Count: 31 media files (videos + images)
+   * Slug: contribute-x
+
+4. Intellect-a-thon (Flagship)
+   * Date: 16 JAN - 2 FEB 2026
+   * Type: Hackathon / Innovation Competition
+   * Description: INTELLECT-A-THON was a 12-day research and innovation competition aimed at transforming student ideas into potential intellectual property assets.
+   * Tags: Innovation, Patent Drafting, Hackathon
+   * Media Count: 30 images
+   * Slug: intellect-a-thon
+
+5. RESEARCH-X
+   * Date: 8 OCT 2025
+   * Type: Research Initiative
+   * Description: A research-focused initiative by IEEE CIS & RAS guiding students through the complete research lifecycle.
+   * Tags: Research, Methodology, CIS & RAS
+   * Media Count: 23 images
+   * Slug: research-x
+
+6. IEEE CIS & RAS NEXUS
+   * Date: 6 OCT 2025
+   * Type: Networking / Professional Engagement
+   * Description: A professional engagement event designed to highlight the academic, research, and career benefits of IEEE membership in AI and Robotics.
+   * Tags: Membership, Networking, AI & Robotics
+   * Media Count: 17 images
+   * Slug: ieee-cis-ras-nexus
+
+7. IEEE Membership Drive 2025
+   * Date: 15 SEPT 2025
+   * Type: Classroom Outreach
+   * Description: A two-day classroom outreach initiative by IEEE CIS & RAS CUSB to introduce students to IEEE, its societies, membership benefits, and registration process.
+   * Tags: Membership, Outreach, Registration
+   * Media Count: None
+   * Slug: ieee-membership-drive-2025
+
+8. POWER HOUR EXPERT TALK
+   * Date: 15 APR 2025
+   * Type: Online Webinar
+   * Description: The Power Hour Expert Talk was an online webinar focused on Ph.D. applications and research career development.
+   * Tags: PhD Guidance, Research, Webinar
+   * Media Count: None
+   * Slug: power-hour-expert-talk
+
+9. IEEE CIS CUSB INDUSTRIAL OUTREACH AT CDAC MOHALI
+   * Date: 16 APR 2025
+   * Type: Industrial Visit
+   * Description: IEEE CIS CUSB organized an industrial outreach visit to CDAC Mohali, a premier national R&D center under MeitY.
+   * Tags: Industrial Visit, CDAC, R&D
+   * Media Count: None
+   * Slug: ieee-cis-cusb-industrial-outreach-at-cdac-mohali
+
+10. PANCHAYAT BY CIS
+    * Date: 10 APR 2025
+    * Type: Community / Networking
+    * Description: "Panchayat" was a refreshing community-building event inspired by informal conversations and creative expression.
+    * Tags: Community, Networking, Open Mic
+    * Media Count: None
+    * Slug: panchayat-by-cis
+
+11. AI INNOVATION DAY BHASHA BANDHU HACKATHON (Flagship)
+    * Date: 28 FEB 2025
+    * Type: Legal-Tech Hackathon
+    * Description: The AI Innovation Day - Bhasha Bandhu Hackathon fostered innovation in the legal-tech domain by encouraging AI-based solutions for multilingual judicial accessibility.
+    * Tags: Hackathon, Legal-Tech, AI Innovation
+    * Media Count: 15 images
+    * Slug: ai-innovation-day-bhasha-bandhu-hackathon
+
+12. PLACEMENT PREPARATION WORKSHOP (Flagship)
+    * Date: 17 FEB 2025
+    * Type: Career Development Workshop
+    * Description: IEEE CIS CUSB conducted an in-depth Placement Preparation Workshop to equip students with essential career and interview strategies.
+    * Tags: Placements, Career, Workshop
+    * Media Count: 46 images
+    * Slug: placement-preparation-workshop
+
+13. UNLEASH THE INNOVATION WITH IEEE
+    * Date: 22 JAN 2025
+    * Type: Tech Seminar
+    * Description: The session provided a holistic perspective on web development, robotics, automation, and machine learning, emphasizing their interconnected role in modern engineering careers.
+    * Tags: Innovation, Web Dev, Robotics
+    * Media Count: 35 images
+    * Slug: unleash-the-innovation-with-ieee
+
+14. LEVERAGING IEEE CIS FOR ACADEMIC AND PROFESSION GROWTH
+    * Date: 17 JAN 2025
+    * Type: Informative Session
+    * Description: This informative session introduced students to IEEE, IEEE CIS, and their role in advancing technology and research.
+    * Tags: Professional Growth, IEEE CIS
+    * Media Count: None
+    * Slug: leveraging-ieee-cis-for-academic-and-profession-growth
+
+15. POSTER MAKING COMPETITION
+    * Date: 8 OCT 2024
+    * Type: Design Competition
+    * Description: The Poster Making Competition, jointly organized by IEEE CTSoc and IEEE CIS, was held as part of IEEE Day celebrations.
+    * Tags: Competition, Creativity, IEEE Day
+    * Media Count: None
+    * Slug: poster-making-competition
+
+16. AZURE AI INFLUENCER DAY (Flagship)
+    * Date: 19 SEP 2024
+    * Type: Cloud & AI Seminar
+    * Description: Azure-AI Influencer Day, organized by IEEE Computer Society CUSB on IEEE Day, focused on the convergence of cloud computing and artificial intelligence using Microsoft Azure.
+    * Tags: Microsoft Azure, Cloud Computing, AI
+    * Media Count: 31 images
+    * Slug: azure-ai-influencer-day
+
+17. Microsoft Office Visit
+    * Date: 14 AUG 2024
+    * Type: Industrial Visit
+    * Description: IEEE Computational Intelligence Society, CUSB organized an exclusive professional visit to the Microsoft Office, Noida, offering students firsthand exposure to a global tech workspace.
+    * Tags: Industrial Visit, Microsoft, Tech Workspace
+    * Media Count: 27 images
+    * Slug: microsoft-office-visit
+
+================================================================================
+5. FREQUENTLY ASKED QUESTIONS (FAQ)
+================================================================================
+Q1: How can I join IEEE CIS CUSB?
+A1: You can join by participating in our annual membership drive or by reaching 
+    out to any of our core team members during our events. Keep an eye on our 
+    social media for official registration links.
+
+Q2: Do I need to be a computer science student to join?
+A2: Not at all! IEEE CIS welcomes students from all backgrounds who have an 
+    interest in computational intelligence, AI, and related fields.
+
+Q3: Are the events only for IEEE members?
+A3: While some exclusive workshops are members-only, most of our flagship 
+    events, hackathons, and expert talks are open to all students.
+
+Q4: How can I stay updated about upcoming events?
+A4: Follow us on our Instagram and LinkedIn pages, and regularly check the 
+    Events section of this website!
+
+================================================================================
+6. PRIVACY POLICY & DATA STORAGE STATEMENTS
+================================================================================
+* Introduction:
+  At IEEE Computational Intelligence Society CUSB, we are committed to protecting 
+  your personal information and your right to privacy. Last updated: June 2026.
+
+* Key Policy Sections:
+  1. Information We Collect:
+     - Personal Info: Name & Email when you sign in via Google.
+     - Platform Data: External coding profiles (LeetCode) & submitted solutions 
+       for the Code Warriors Portal.
+     - Usage Data: Streak, leaderboard rankings, and event participation.
+  2. How We Use Your Information:
+     - Provide and maintain the Warriors Portal (streaks, global leaderboard).
+     - Verify identity & manage secure access.
+     - Communicate regarding events, hackathons, and community updates.
+     - Improve platform and maintain safety.
+  3. Data Security & Storage:
+     - Secure storage with industry-standard encryption (via Supabase backend).
+     - We DO NOT store passwords (authentication is via Google OAuth).
+     - Strict access controls to guarantee confidentiality.
+  4. Third-Party Sharing:
+     - We do not sell, rent, or trade your personal information.
+     - Data shared ONLY with trusted infrastructure partners (Google Cloud, Supabase)
+       solely to run the site and features.
+
+================================================================================
+7. CONTACTS, SOCIALS, & THIRD-PARTY LINKS
+================================================================================
+* General Inquiry Email: ieeeciscusb@gmail.com
+* Instagram Handle: @ieee.cis.cusb (https://www.instagram.com/ieee.cis.cusb)
+* LinkedIn Page: IEEE CIS CUSB (https://www.linkedin.com/company/ieeeciscusb/)
+* Code Warriors WhatsApp Group Invite: 
+  https://chat.whatsapp.com/I6oYLe92o2UIMKhERnsxvN?mode=gi_t
+* IEEE Global / Third Party Resources:
+  - IEEE Global Standards: https://standards.ieee.org/
+  - IEEE CIS Global: https://cis.ieee.org/
+  - IEEE Official Privacy Link: https://www.ieee.org/security-privacy.html
+  - IEEE Corporate Governance Terms: https://www.ieee.org/about/corporate/governance/p7-8.html
+
+================================================================================
+8. WEB SITE STRUCTURAL RECOMMENDATIONS FOR THE UI UPDATE
+================================================================================
+When redesigning the user interface of this website entirely, consider the 
+following structured layout improvements to showcase this compiled content:
+
+1. HERO SECTION:
+   - Make the "C1S C0DE WARR10RS" and "CIS Innovators Hub" access buttons prominent.
+   - Retain the interactive floating memory cards layout (using the images from 
+     /hero-slideshow) as it adds a premium feel, but optimize them using 
+     CSS scale and container query states.
+
+2. EVENTS DIRECTORY:
+   - Split events visually into 3 clear categories: 
+     a. Flagship Events (with customized high-resolution cover graphics).
+     b. Active/Ongoing Initiatives (Code Warriors portal & Innovators Hub).
+     c. Past Events (expandable grid with filtering options by event type: 
+        e.g., Hackathons, Workshops, Visits).
+   - Use dynamic columns or masonry grid format to display dynamic photo 
+     galleries inside dynamic detail pages `/past-events/[slug]`.
+
+3. PEOPLE/TEAM PAGE:
+   - Use clean card components for Dr. Sugandha Sharma and Dr. Rakesh Kumar.
+   - Use a sleek hover-state overlay showing social icons (LinkedIn & Email) 
+     for each student core team member.
+   - Implement staggered entry animations (GSAP/Framer Motion) to load team 
+     members cleanly by role.
+
+4. PORTAL DASHBOARDS (Code Warriors):
+   - Design a dashboard layout for users showing their LeetCode profile synched details, 
+     weekly streak count, leaderboard position, and solved problems lists.
+================================================================================

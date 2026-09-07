@@ -1,0 +1,560 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-primary: #00629b;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e6f0f5;
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #475569;
+  --color-accent: #06b6d4;
+  --color-accent-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-ring: #00629b;
+
+  /* Gradient text keyframes */
+  --animate-gradient-border: gradient-border 6s ease-in-out infinite;
+  --animate-gradient-1: gradient-1 12s ease-in-out infinite alternate;
+  --animate-gradient-2: gradient-2 12s ease-in-out infinite alternate;
+  --animate-gradient-3: gradient-3 12s ease-in-out infinite alternate;
+  --animate-gradient-4: gradient-4 12s ease-in-out infinite alternate;
+}
+
+:root {
+  --ieee-blue: #00629b;
+  --ieee-blue-dark: #00527f;
+  --ieee-blue-light: #e6f0f5;
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border-subtle: #e2e8f0;
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 18px 40px rgb(15 23 42 / 0.10);
+  --shadow-glow: 0 18px 50px rgb(0 98 155 / 0.14);
+  --surface-glass: rgb(255 255 255 / 0.72);
+  --surface-glass-strong: rgb(255 255 255 / 0.9);
+  --radius-card: 1.5rem;
+
+  /* Animated gradient text color tokens — IEEE Blue/Cyan palette */
+  --color-1: 205 100% 30%;   /* Deep IEEE Blue */
+  --color-2: 192 91% 36%;    /* Teal-Cyan */
+  --color-3: 218 100% 50%;   /* Bright Blue */
+  --color-4: 186 100% 42%;   /* Cyan */
+  --color-5: 200 85% 60%;    /* Sky Blue */
+}
+
+@keyframes gradient-border {
+  0%,100% { border-radius: 37% 29% 27% 27% / 28% 25% 41% 37%; }
+  25%      { border-radius: 47% 29% 39% 49% / 61% 19% 66% 26%; }
+  50%      { border-radius: 57% 23% 47% 72% / 63% 17% 66% 33%; }
+  75%      { border-radius: 28% 49% 29% 100% / 93% 20% 64% 25%; }
+}
+@keyframes gradient-1 {
+  0%,100% { top: 0; right: 0; }
+  50%     { top: 50%; right: 25%; }
+  75%     { top: 25%; right: 50%; }
+}
+@keyframes gradient-2 {
+  0%,100% { top: 0; left: 0; }
+  60%     { top: 75%; left: 25%; }
+  85%     { top: 50%; left: 50%; }
+}
+@keyframes gradient-3 {
+  0%,100% { bottom: 0; left: 0; }
+  40%     { bottom: 50%; left: 25%; }
+  65%     { bottom: 25%; left: 50%; }
+}
+@keyframes gradient-4 {
+  0%,100% { bottom: 0; right: 0; }
+  50%     { bottom: 25%; right: 40%; }
+  90%     { bottom: 50%; right: 25%; }
+}
+
+@keyframes liquid-rainbow {
+  0%   { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+@keyframes pixel-pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+@keyframes xp-fill {
+  from { width: 0; }
+}
+@keyframes count-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-60%) translateY(-25%) scale(1);
+  }
+  33% {
+    transform: translateX(40%) translateY(35%) scale(1.15);
+  }
+  66% {
+    transform: translateX(80%) translateY(-20%) scale(0.9);
+  }
+  100% {
+    transform: translateX(-60%) translateY(-25%) scale(1);
+  }
+}
+
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg) translateX(50px) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) translateX(120px) rotate(-180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) translateX(50px) rotate(-360deg) scale(1);
+  }
+}
+
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-40%) translateX(-20%) scale(0.95);
+  }
+  50% {
+    transform: translateY(60%) translateX(30%) scale(1.15);
+  }
+  100% {
+    transform: translateY(-40%) translateX(-20%) scale(0.95);
+  }
+}
+
+@keyframes meshGradientMove {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.animate-first {
+  animation: moveVertical 24s ease-in-out infinite;
+}
+.animate-second {
+  animation: moveInCircle 20s ease-in-out reverse infinite;
+}
+.animate-third {
+  animation: moveInCircle 28s linear infinite;
+}
+.animate-fourth {
+  animation: moveHorizontal 26s ease-in-out infinite;
+}
+.animate-fifth {
+  animation: moveInCircle 22s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes scroll-bg-1 {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+::selection { background: rgb(0 98 155 / 0.18); color: var(--text-primary); }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--ieee-blue); outline-offset: 3px; }
+
+/* ── Site canvas with ambient radial glows ── */
+.site-canvas {
+  background:
+    radial-gradient(circle at 8% 16%, rgb(0 98 155 / 0.09), transparent 25rem),
+    radial-gradient(circle at 92% 48%, rgb(6 182 212 / 0.065), transparent 30rem),
+    var(--bg-primary);
+}
+.pixel-grid-bg {
+  background-color: #ffffff !important;
+  background-image: radial-gradient(rgb(0 98 155 / 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.light-panel { background-color: rgb(248 250 252 / 0.84) !important; }
+.section-eyebrow {
+  color: var(--ieee-blue);
+  background: rgb(0 98 155 / 0.07);
+  border: 1px solid rgb(0 98 155 / 0.17);
+  box-shadow: none;
+}
+.section-heading { color: var(--text-primary); background: none; -webkit-text-fill-color: currentColor; }
+
+/* ── Gradient text (static CSS fallback) ── */
+.gradient-text {
+  background: linear-gradient(105deg, #00527f 5%, #00629b 42%, #0891b2 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Animated gradient text blob container ── */
+.gradient-text-animated {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  background: white;
+}
+.gradient-text-animated > .grad-blob {
+  pointer-events: none;
+  position: absolute;
+  mix-blend-mode: overlay;
+  border-radius: 50%;
+  background: hsl(var(--color-3));
+  filter: blur(1rem);
+  width: 30vw;
+  height: 30vw;
+}
+
+/* ── Glass surface ── */
+.glass-surface {
+  background: var(--surface-glass);
+  border: 1px solid rgb(255 255 255 / 0.82);
+  box-shadow: 0 1px 1px rgb(15 23 42 / 0.03), var(--shadow-md);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ── GlowCard (mouse spotlight) ── */
+.glow-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.glow-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  opacity: var(--spotlight-opacity, 0);
+  transition: opacity 180ms ease;
+  pointer-events: none;
+  background: radial-gradient(360px circle at var(--spotlight-x) var(--spotlight-y), rgb(var(--spotlight-color) / .15), transparent 42%);
+}
+
+/* ── SpotlightCard (global pointer tracking) ── */
+[data-spotlight-card]::before,
+[data-spotlight-card]::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: calc(var(--sc-border-size, 2px) * -1);
+  border: var(--sc-border-size, 2px) solid transparent;
+  border-radius: inherit;
+  background-attachment: fixed;
+  background-size: calc(100% + (2 * var(--sc-border-size, 2px))) calc(100% + (2 * var(--sc-border-size, 2px)));
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+}
+[data-spotlight-card]::before {
+  background-image: radial-gradient(
+    calc(var(--sc-size, 200px) * 0.75) calc(var(--sc-size, 200px) * 0.75) at
+    calc(var(--sc-x, 0) * 1px)
+    calc(var(--sc-y, 0) * 1px),
+    hsl(var(--sc-hue, 205) 100% 50% / var(--sc-border-spot-opacity, 0.8)), transparent 100%
+  );
+  filter: brightness(2);
+}
+[data-spotlight-card]::after {
+  background-image: radial-gradient(
+    calc(var(--sc-size, 200px) * 0.5) calc(var(--sc-size, 200px) * 0.5) at
+    calc(var(--sc-x, 0) * 1px)
+    calc(var(--sc-y, 0) * 1px),
+    hsl(0 100% 100% / var(--sc-border-light-opacity, 0.6)), transparent 100%
+  );
+}
+
+/* ── Liquid Glass Button ── */
+.liquid-glass-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    conic-gradient(
+      from var(--angle, 0deg),
+      #00629b, #06b6d4, #0891b2, #00629b, #06b6d4,
+      #3b82f6, #8b5cf6, #ec4899, #f59e0b,
+      #10b981, #00629b
+    ) border-box;
+  color: var(--ieee-blue);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 0 transparent,
+    inset 0 0 0 1px rgb(255 255 255 / 0.5);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  animation: liquid-rainbow 3s linear infinite;
+}
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.liquid-glass-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    200px circle at var(--btn-x, 50%) var(--btn-y, 50%),
+    rgb(0 98 155 / 0.12), transparent 70%
+  );
+  opacity: var(--btn-glow, 0);
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.liquid-glass-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 8px 30px rgb(0 98 155 / 0.25),
+    0 0 0 3px rgb(6 182 212 / 0.2),
+    inset 0 0 0 1px rgb(255 255 255 / 0.7);
+  --btn-glow: 1;
+}
+.liquid-glass-btn:active { transform: translateY(-1px) scale(0.99); }
+
+/* ── Button primary ── */
+.button-primary {
+  box-shadow: 0 10px 24px rgb(0 98 155 / .18);
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.button-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgb(0 98 155 / .24); }
+
+/* ── Card lift ── */
+.card-lift { transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease; }
+.card-lift:hover { transform: translateY(-5px) scale(1.01); box-shadow: var(--shadow-glow); border-color: rgb(0 98 155 / .28); }
+
+/* ── Reveal section ── */
+.reveal-section { opacity: 0; transform: translateY(24px); transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1); }
+.reveal-section.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ── Shimmer text effect ── */
+.shimmer-text {
+  background: linear-gradient(90deg, var(--ieee-blue) 0%, #06b6d4 25%, var(--ieee-blue) 50%, #06b6d4 75%, var(--ieee-blue) 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ─────────── Gaming / Codedex Dashboard Theme ─────────── */
+
+/* Animated Gaming Background Mesh */
+.gaming-bg-mesh {
+  background-color: #f6f8fc;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgb(0 98 155 / 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgb(6 182 212 / 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgb(99 102 241 / 0.05) 0%, transparent 50%),
+    radial-gradient(circle, rgb(0 98 155 / 0.06) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 20px 20px;
+  animation: bg-mesh-shift 16s ease-in-out infinite alternate;
+}
+
+@keyframes bg-mesh-shift {
+  0% {
+    background-position: 0% 0%, 100% 100%, 50% 50%, 0 0;
+  }
+  100% {
+    background-position: 100% 50%, 0% 50%, 80% 20%, 10px 10px;
+  }
+}
+
+/* Pixel border (stepped box-shadow illusion) */
+.pixel-border {
+  box-shadow:
+    0 -2px 0 0 var(--ieee-blue),
+    0 2px 0 0 var(--ieee-blue),
+    -2px 0 0 0 var(--ieee-blue),
+    2px 0 0 0 var(--ieee-blue);
+}
+.pixel-border-sm {
+  box-shadow:
+    0 -1px 0 0 rgb(0 98 155 / 0.3),
+    0 1px 0 0 rgb(0 98 155 / 0.3),
+    -1px 0 0 0 rgb(0 98 155 / 0.3),
+    1px 0 0 0 rgb(0 98 155 / 0.3);
+}
+
+/* RPG Player Status Bars (HP, MANA, XP) */
+.hp-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+  box-shadow: 0 0 8px rgb(239 68 68 / 0.4);
+}
+.mana-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  box-shadow: 0 0 8px rgb(59 130 246 / 0.4);
+}
+.xp-bar-track {
+  background: rgb(0 98 155 / 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 8px;
+}
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #00629b, #06b6d4, #10b981);
+  animation: xp-fill 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 0 0 10px rgb(6 182 212 / 0.5);
+}
+
+/* Codedex Game HUD stat cards */
+.hud-card {
+  background: #ffffff;
+  border: 1.5px solid rgb(0 98 155 / 0.14);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 0 0 rgb(0 98 155 / 0.08),
+    0 10px 30px rgb(15 23 42 / 0.06);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.hud-card:hover {
+  transform: translateY(-5px);
+  border-color: rgb(0 98 155 / 0.35);
+  box-shadow:
+    0 6px 0 0 var(--ieee-blue),
+    0 16px 40px rgb(0 98 155 / 0.14);
+}
+
+/* Codedex RPG character avatar frame */
+.rpg-avatar-frame {
+  position: relative;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #00629b 0%, #06b6d4 100%);
+  padding: 3px;
+  box-shadow: 0 8px 24px rgb(0 98 155 / 0.25);
+  transition: transform 0.3s ease;
+}
+.rpg-avatar-frame:hover {
+  transform: scale(1.04) rotate(1deg);
+}
+
+/* Quest badge */
+.quest-badge {
+  font-family: 'Courier New', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  background: rgb(0 98 155 / 0.08);
+  color: var(--ieee-blue);
+  border: 1px solid rgb(0 98 155 / 0.25);
+}
+
+/* Gaming animated text gradient */
+.gaming-text-gradient {
+  background: linear-gradient(90deg, #00629b 0%, #06b6d4 33%, #6366f1 66%, #00629b 100%);
+  background-size: 250% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Pixel flame animation */
+.pixel-flame {
+  display: inline-block;
+  animation: pixel-pulse 0.8s ease-in-out infinite;
+}
+
+/* Dashboard sidebar active state */
+.dash-nav-active {
+  background: rgb(0 98 155 / 0.1);
+  border-left: 4px solid var(--ieee-blue);
+  color: var(--ieee-blue);
+  font-weight: 800;
+}
+.dash-nav-item {
+  border-left: 4px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.dash-nav-item:hover {
+  background: rgb(0 98 155 / 0.05);
+  border-left-color: rgb(0 98 155 / 0.4);
+}
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .reveal-section { opacity: 1; transform: none; }
+  .glow-card::before { display: none; }
+  [data-spotlight-card]::before,
+  [data-spotlight-card]::after { display: none; }
+  .liquid-glass-btn { animation: none; }
+  .xp-bar-fill { animation: none; }
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Hardware Acceleration & Low-End Device Optimization ── */
+.hud-card, .memory-card, .spotlight-card, [data-spotlight-card], .glass-surface {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+
+
+@media (max-width: 768px) {
+  .hud-card, .memory-card {
+    will-change: auto;
+  }
+  .gaming-bg-mesh {
+    animation: none;
+    background-position: center;
+  }
+}

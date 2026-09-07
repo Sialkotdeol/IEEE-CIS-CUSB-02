@@ -1,0 +1,104 @@
+{
+  "profiles": [
+    {
+      "id": "usr-umcgug7ig",
+      "name": "AngadveerSinghDeol",
+      "email": "angaddeol11@gmail.com",
+      "uid": "25BIT10164",
+      "department": "Computer Science",
+      "year": "1st Year",
+      "leetcode_handle": "meow",
+      "linkedin_profile": "",
+      "lc_rating": 1866,
+      "lc_max_rating": 2019,
+      "lc_rank": "Knight",
+      "lc_max_rank": "Guardian",
+      "current_streak": 0,
+      "max_streak": 0,
+      "total_solved": 0,
+      "is_admin": true,
+      "created_at": "2026-07-12T07:28:16.336Z",
+      "college": "CUSB",
+      "section": "A",
+      "password_hash": "855b568c881d41520ab18bf29dc5b6dd36572ea7c5a8d17e64d5000d5b23ba93",
+      "last_sync": "2026-07-15T05:58:43.691Z"
+    },
+    {
+      "id": "usr-esph6r7ca",
+      "name": "Anagdveer Singh Deol",
+      "email": "angadeol11@gmail.com",
+      "uid": "25BIT10164",
+      "department": "Computer Science",
+      "year": "1st Year",
+      "leetcode_handle": "Deol",
+      "linkedin_profile": "",
+      "lc_rating": 0,
+      "lc_max_rating": 0,
+      "lc_rank": "Unrated",
+      "lc_max_rank": "Unrated",
+      "current_streak": 0,
+      "max_streak": 0,
+      "total_solved": 0,
+      "is_admin": true,
+      "created_at": "2026-07-12T07:53:00.793Z",
+      "college": "CUSB",
+      "section": "A",
+      "password_hash": "855b568c881d41520ab18bf29dc5b6dd36572ea7c5a8d17e64d5000d5b23ba93",
+      "last_sync": "2026-07-12T07:53:14.546Z"
+    }
+  ],
+  "daily_problems": [],
+  "submissions": [],
+  "badges": [
+    {
+      "id": "streak_7",
+      "name": "7-Day Streak",
+      "description": "Solve the daily POTD for 7 consecutive days",
+      "icon": "Flame",
+      "requirement_type": "streak",
+      "requirement_value": 7
+    },
+    {
+      "id": "streak_30",
+      "name": "30-Day Streak",
+      "description": "Solve the daily POTD for 30 consecutive days",
+      "icon": "Flame",
+      "requirement_type": "streak",
+      "requirement_value": 30
+    },
+    {
+      "id": "solves_10",
+      "name": "Decathlete",
+      "description": "Solve 10 LeetCode daily problems",
+      "icon": "Trophy",
+      "requirement_type": "solves",
+      "requirement_value": 10
+    },
+    {
+      "id": "solves_50",
+      "name": "Centurion",
+      "description": "Solve 50 LeetCode daily problems",
+      "icon": "Award",
+      "requirement_type": "solves",
+      "requirement_value": 50
+    },
+    {
+      "id": "rating_1500",
+      "name": "Knight Rank",
+      "description": "Reach a LeetCode contest rating of 1500",
+      "icon": "Shield",
+      "requirement_type": "rating",
+      "requirement_value": 1500
+    },
+    {
+      "id": "rating_1800",
+      "name": "Guardian Rank",
+      "description": "Reach a LeetCode contest rating of 1800",
+      "icon": "Crown",
+      "requirement_type": "rating",
+      "requirement_value": 1800
+    }
+  ],
+  "user_badges": [],
+  "announcements": []
+}
