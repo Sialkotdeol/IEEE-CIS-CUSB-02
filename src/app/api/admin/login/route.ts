@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, createSession, findAdmin, isAdminConfigured, sessionCookieOptions } from "@/lib/adminAuth";
 import { logActivity } from "@/lib/adminApi";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import bcrypt from "bcryptjs";
 
 // Email + password login against the admin_users table in Supabase.
-// Passwords are bcrypt-hashed in the database; the check runs in the
-// verify_admin_login() SQL function, so hashes never leave Postgres.
+// Passwords are bcrypt-hashed in the database; verification is done
+// in Node.js using bcryptjs to avoid pgcrypto/RPC permission issues.
 
 // Basic brute-force protection: max 10 failed attempts per IP per 15 minutes.
 // In-memory, so it resets on redeploy/cold start — enough to slow down guessing.
@@ -42,14 +43,26 @@ export async function POST(req: NextRequest) {
   const password = typeof body.password === "string" ? body.password.slice(0, 200) : "";
   if (!email || !password) return NextResponse.json({ error: "Enter your email and password." }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin().rpc("verify_admin_login", { p_email: email, p_password: password });
-  if (error) {
-    console.error("❌ verify_admin_login failed:", error);
+  // Fetch the admin user directly from the table
+  const { data: userData, error: userError } = await supabaseAdmin()
+    .from("admin_users")
+    .select("email, name, role, disabled, password")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (userError) {
+    console.error("❌ admin_users query failed:", userError);
     return NextResponse.json({ error: "Database not set up — run supabase/admin_portal.sql" }, { status: 503 });
   }
 
+  // Verify: user exists, not disabled, has a password, and password matches
+  let passwordValid = false;
+  if (userData && !userData.disabled && userData.password) {
+    passwordValid = await bcrypt.compare(password, userData.password);
+  }
+
   // findAdmin also applies ADMIN_EMAILS (always-owner) and the disabled flag.
-  const admin = Array.isArray(data) && data.length ? await findAdmin(email) : null;
+  const admin = passwordValid ? await findAdmin(email) : null;
   if (!admin) {
     recordFailure(ip);
     await logActivity({ email }, "login.denied");
