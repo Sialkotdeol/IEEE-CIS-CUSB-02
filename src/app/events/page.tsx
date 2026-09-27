@@ -13,7 +13,6 @@ import { pastEvents as PAST_EVENTS } from "@/data/events";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 
 const FLAGSHIP_SLUGS = [
-  "contribute-x",
   "intellect-a-thon",
   "ai-innovation-day-bhasha-bandhu-hackathon",
   "placement-preparation-workshop",

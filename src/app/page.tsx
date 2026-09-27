@@ -6,6 +6,7 @@ import FeaturedContent from "@/components/dom/FeaturedContent";
 import OngoingEvents from "@/components/dom/OngoingEvents";
 import Footer from "@/components/dom/Footer";
 import GsapScroller from "@/components/dom/GsapScroller";
+import PositionsPopup from "@/components/dom/PositionsPopup";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
         </GsapScroller>
       </div>
       <Footer />
+      <PositionsPopup />
     </>
   );
 }

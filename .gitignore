@@ -50,3 +50,6 @@ next-env.d.ts
 .gemini/
 .cursor/
 .claude/
+
+# The example file has no secrets — share it
+!.env.example

@@ -1,10 +1,15 @@
 import { pastEvents } from "@/data/events";
+import { getPastEvent } from "@/lib/siteContent";
 import { notFound } from "next/navigation";
 import Nav from "@/components/dom/Nav";
 import Footer from "@/components/dom/Footer";
 import { Calendar, Tag, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
 import BackButton from "@/components/dom/BackButton";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
+
+// Events archived and photos uploaded from the admin portal appear here; the portal
+// revalidates on change, and pages refresh at least once a minute.
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return pastEvents.map((event) => ({
@@ -18,7 +23,7 @@ export default async function PastEventDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const event = pastEvents.find((e) => e.slug === slug);
+  const event = await getPastEvent(slug);
 
   if (!event) {
     notFound();

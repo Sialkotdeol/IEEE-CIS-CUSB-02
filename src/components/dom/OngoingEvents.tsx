@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect, useState } from "react";
 
 const ONGOING_EVENTS = [
   {
@@ -92,8 +92,50 @@ const cardVariants = {
   },
 };
 
+type OngoingEvent = (typeof ONGOING_EVENTS)[number];
+
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop";
+const ACCENTS = [
+  { accent: "from-blue-600 to-cyan-500", glowHue: 205 },
+  { accent: "from-cyan-500 to-blue-400", glowHue: 192 },
+];
+
+// Ongoing events are managed from the admin portal (/admin/events), so archiving one
+// there removes it from this section. The built-in list above is only a fallback for
+// when the events table isn't set up yet. Returns null while loading.
+function useOngoingEvents(): OngoingEvent[] | null {
+  const [events, setEvents] = useState<OngoingEvent[] | null>(null);
+  useEffect(() => {
+    fetch("/api/events")
+      .then((r) => (r.ok ? r.json() : { ready: false, events: [] }))
+      .then(
+        (data: {
+          ready: boolean;
+          events: { title: string; date: string; location: string; description: string; link: string | null; image: string | null }[];
+        }) =>
+          setEvents(
+            !data.ready
+              ? ONGOING_EVENTS
+              : data.events.map((e, i) => ({
+                  title: e.title,
+                  date: e.date || "Ongoing Event",
+                  location: e.location || "CU",
+                  description: e.description,
+                  link: e.link || "/events",
+                  image: e.image || DEFAULT_IMAGE,
+                  ...ACCENTS[i % ACCENTS.length],
+                }))
+          )
+      )
+      .catch(() => setEvents(ONGOING_EVENTS));
+  }, []);
+  return events;
+}
+
 export default function OngoingEvents() {
   const router = useRouter();
+  const loaded = useOngoingEvents();
+  const events = loaded ?? [];
 
   const handleNavigation = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -145,18 +187,23 @@ export default function OngoingEvents() {
           </motion.p>
         </div>
 
+        {loaded && !events.length && (
+          <p className="text-slate-500 text-center">No ongoing events right now. Check back soon!</p>
+        )}
+
         {/* Events Grid */}
+        {loaded === null && <div className="min-h-[420px] w-full" aria-hidden />}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
           className={`grid grid-cols-1 ${
-            ONGOING_EVENTS.length > 1 ? "md:grid-cols-2" : "max-w-2xl"
+            events.length > 1 ? "md:grid-cols-2" : "max-w-2xl"
           } gap-8 w-full max-w-5xl mx-auto justify-center`}
         >
-          {ONGOING_EVENTS.map((event, index) => (
-            <motion.div key={index} variants={cardVariants}>
+          {events.map((event) => (
+            <motion.div key={event.link + event.title} variants={cardVariants}>
               <SpotlightCard
                 glowHue={event.glowHue}
                 spotSize={300}

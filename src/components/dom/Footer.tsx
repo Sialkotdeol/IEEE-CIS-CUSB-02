@@ -42,6 +42,16 @@ export default function Footer() {
                   Team
                 </Link>
               </li>
+              <li>
+                <Link href="/call-for-positions" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Call for Positions
+                </Link>
+              </li>
+              <li>
+                <Link href="/badges" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Digital Badges
+                </Link>
+              </li>
             </ul>
           </div>
 
