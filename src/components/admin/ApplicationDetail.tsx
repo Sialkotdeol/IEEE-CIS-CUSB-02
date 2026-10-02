@@ -25,7 +25,7 @@ interface App {
   hours_per_week: string;
   linkedin_url: string | null;
   portfolio_url: string | null;
-  resume_url: string | null;
+
   status: string;
 }
 
@@ -194,11 +194,10 @@ export default function ApplicationDetail({
                 </p>
               </div>
             </div>
-            {(app.linkedin_url || app.portfolio_url || app.resume_url) && (
+            {(app.linkedin_url || app.portfolio_url) && (
               <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-100">
                 {link("LinkedIn", app.linkedin_url)}
                 {link("Portfolio / GitHub", app.portfolio_url)}
-                {link("Resume", app.resume_url)}
               </div>
             )}
           </Card>

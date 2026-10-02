@@ -25,7 +25,8 @@ const applicationSchema = z
         hours_per_week: z.enum(['2-4', '4-6', '6-8', '8+']),
         linkedin_url: optionalUrl,
         portfolio_url: optionalUrl,
-        resume_url: optionalUrl,
+
+
     })
     .refine((d) => d.second_preference !== d.first_preference, {
         message: 'Second preference must be different from your first preference',

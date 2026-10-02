@@ -55,7 +55,7 @@ const INITIAL_FORM = {
   hours_per_week: "",
   linkedin_url: "",
   portfolio_url: "",
-  resume_url: "",
+
 };
 
 type FormState = typeof INITIAL_FORM;
@@ -533,9 +533,7 @@ export default function CallForPositionsClient({
                           <input type="url" name="portfolio_url" value={formData.portfolio_url} onChange={handleChange} className={inputClass} placeholder="https://github.com/..." />
                         </Field>
                       </div>
-                      <Field label="Resume Link" error={fieldErrors.resume_url} hint="Google Drive link with 'Anyone with the link can view' access">
-                        <input type="url" name="resume_url" value={formData.resume_url} onChange={handleChange} className={inputClass} placeholder="https://drive.google.com/..." />
-                      </Field>
+
                     </div>
 
                     <button

@@ -100,7 +100,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                   {[
                     ["LinkedIn", r.linkedin_url],
                     ["Portfolio", r.portfolio_url],
-                    ["Resume", r.resume_url],
+
                   ]
                     .filter(([, u]) => u)
                     .map(([l, u]) => (
