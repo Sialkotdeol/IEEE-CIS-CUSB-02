@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Download, GitCompare, KanbanSquare, List, Search, X } from "lucide-react";
+import { Download, FileSpreadsheet, GitCompare, KanbanSquare, List, Search, X } from "lucide-react";
 import { api, Button, Card, EmptyState, inputClass, PageHeader, ScorePill, StatusBadge, STATUS_STYLES } from "@/components/admin/ui";
 
 interface Row {
@@ -154,6 +154,11 @@ export default function ApplicationsBoard({
             <a href="/api/admin/applications" className="inline-flex">
               <Button>
                 <Download className="w-4 h-4" /> Export CSV
+              </Button>
+            </a>
+            <a href="/api/admin/applications/notes-export" className="inline-flex">
+              <Button>
+                <FileSpreadsheet className="w-4 h-4" /> Export with Notes
               </Button>
             </a>
             <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5">
